@@ -1,0 +1,47 @@
+{
+    "server": {
+        "host": "localhost",
+        "port": 8080
+    },
+    "cors": {
+        "allowed_origins": [
+            "http://localhost:8080"
+        ],
+        "allowed_methods": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE"
+        ],
+        "allowed_headers": [
+            "*"
+        ]
+    },
+    "database": {
+        "connections": {
+            "default": {
+                "engine": "tortoise.backends.asyncpg",
+                "credentials": {
+                    "host": "127.17.0.2",
+                    "port": "5432",
+                    "user": "postgres",
+                    "password": "adm1n",
+                    "database": "restaurant"
+                }
+            }
+        },
+        "apps": {
+            "my_app": {
+                "models": [
+                    "__main__",
+                    "src.models",
+                    "aerich.models"
+                ],
+                "default_connection": "default"
+            }
+        }
+    },
+    "routers": [],
+    "use_tz": false,
+    "timezone": "UTC"
+}
