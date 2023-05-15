@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from models import (
+from .models import (
     Dish,
     Category,
     Order,
@@ -52,10 +52,14 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    is_staff = serializers.BooleanField(required=False)
+    email = serializers.EmailField(required=True)
+    slug = serializers.SlugField(read_only=True)
+    password = serializers.CharField(required=True, write_only=True)
     class Meta:
         model = User
-        fields = '__all__'
-        extra_kwargs = {'password': {'write_only': True}}
+        exclude = ['is_active']
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
