@@ -55,8 +55,8 @@ class UserSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     is_staff = serializers.BooleanField(required=False)
     email = serializers.EmailField(required=True)
-    slug = serializers.SlugField(read_only=True)
     password = serializers.CharField(required=True, write_only=True)
+
     class Meta:
         model = User
         exclude = ['is_active']
@@ -67,19 +67,12 @@ class UserSerializer(serializers.ModelSerializer):
     
 
 class RestaurantSerializer(serializers.ModelSerializer):
-    users = UserSerializer(many=True, read_only=True)
+
+    name = serializers.CharField(required=True)
 
     class Meta:
         model = Restaurant
-        fields = '__all__'
-
-
-class RestaurantSerializer(serializers.ModelSerializer):
-    users = UserSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Restaurant
-        fields = '__all__'
+        exclude = ('users',)
 
 
 class RestaurantGallerySerializer(serializers.ModelSerializer):
@@ -103,6 +96,9 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class MenuSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(allow_empty_file=False, use_url=True, read_only=True)
+    restaurants = RestaurantSerializer(many=True, read_only=True)
+
     class Meta:
         model = Menu
         fields = '__all__'

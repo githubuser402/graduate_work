@@ -101,10 +101,10 @@ class User(AbstractBaseUser):
 
 class Restaurant(models.Model):
     name = models.CharField(max_length=60)
-    address = models.CharField(max_length=70)
-    description = models.TextField()
-    contact_number = models.JSONField()
-    email = models.JSONField()
+    address = models.CharField(max_length=70, null=True)
+    description = models.TextField(default='')
+    contact_number = models.JSONField(default=dict)
+    email = models.JSONField(default=dict)
     users = models.ManyToManyField(User, related_name="restaurants")
 
     def __str__(self):
@@ -146,7 +146,8 @@ class Order(models.Model):
 
 class Menu(models.Model):
     title = models.CharField(max_length=60)
-    image = models.ImageField(upload_to="menu_backgrounds")
+    image = models.ImageField(upload_to="menu_backgrounds", null=True)
+    restaurants = models.ManyToManyField(Restaurant, related_name='menus')
 
     def __str__(self):
         return self.title

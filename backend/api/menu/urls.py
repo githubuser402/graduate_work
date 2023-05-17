@@ -14,15 +14,15 @@ from .views import (
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
-    path('t/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('t/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('u/<int:user_id>/', user_view, name='user'),
-    path('r/<int:restaurant_id>/', restaurant_view, name='restaurant_view'),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('u/', user_view, name='user'),
+    path('r/', restaurant_view, name='restaurant_view'),
     path('r/<int:restaurant_id>/g/', restaurant_gallery_view, name='restaurant_gallery_view'),
-    path('r/<int:restaurant_id>/t/<int:table_id>/', table_view, name='restaurant_table_view'),
-    path('r/<int:restaurant_id>/m/<int:menu_id>/', menu_view, name='restaurant_menu_view'),
-    path('r/<int:restaurant_id>/m/<int:menu_id>/d/<int:dish_id>', dish_view, name='restaurant_dish_view'),
+    path('r/<int:restaurant_id>/t/', table_view, name='restaurant_table_view'),
+    path('r/<int:restaurant_id>/m/', menu_view, name='restaurant_menu_view'),
+    path('r/<int:restaurant_id>/m/<int:menu_id>/d/', dish_view, name='restaurant_dish_view'),
     path('r/<int:restaurant_id>/m/<int:menu_id>/d/<int:dish_id>/i/', dish_image_view, name='restaurant_dish_image_view'),
-    path('r/<int:restaurant_id>/m/<int:menu_id>/c/<int:category_id>/', menu_category_view, name='restaurant_menu_category_view'),
-    path('r/<int:restaurant_id>/i/<int:ingradient_id>/', ingradient_view, name='restaurant_ingradient_view'),
+    path('r/<int:restaurant_id>/m/<int:menu_id>/c/', menu_category_view, name='restaurant_menu_category_view'),
+    path('r/<int:restaurant_id>/i/', ingradient_view, name='restaurant_ingradient_view'),
 ]
