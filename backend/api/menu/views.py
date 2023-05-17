@@ -11,10 +11,9 @@ from .serializers import UserSerializer
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
-def user_view(request):
+def user_view(request, user_id=None):
     if request.method == "GET":
-        user_id = request.GET.get('user_id')
-        if user_id is not None:
+        if user_id:
             try:
                 user = User.objects.get(id=user_id)
                 serializer = UserSerializer(user)
@@ -31,33 +30,57 @@ def user_view(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class UserTokenObtainPairView(TokenObtainPairView):
-#     def post(self, request, *args, **kwargs):
-#         print("this called")
-#         response = super().post(request, *args, **kwargs)
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-
-#         user = User.objects.get(username=serializer.validated_data['username'])
-#         user_serializer = UserSerializer(user)
-#         token = RefreshToken.for_user(user)
-
-#         response.data['user'] = user_serializer.data
-#         response.data['access_token'] = str(token.access_token)
-#         response.data['refresh_token'] = str(token)
-
-#         return response
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def restaurant_view(request, restaurant_id=None):
+    return Response()
 
 
-# class UserTokenRefreshView(TokenRefreshView):
-#     def post(self, request, *args, **kwargs):
-#         response = super().post(request, *args, **kwargs)
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def restaurant_gallery_view(request, restaurant_id):
+    return Response()
 
-#         user = User.objects.get(username=serializer.validated_data['username'])
-#         user_serializer = UserSerializer(user)
 
-#         response.data['user'] = user_serializer.data
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def table_view(request, restaurant_id, table_id=None):
+    return Response()
 
-#         return response
+
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def menu_view(request, restaurant_id, menu_id=None):
+    return Response()
+
+
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def menu_category_view(request, restaurant_id, menu_id, category_id=None):
+    return Response()
+
+
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def dish_view(request, restaurant_id, menu_id, dish_id=None):
+    return Response()
+
+
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def dish_image_view(request, restaurant_id, menu_id, dish_id):
+    return Response()
+
+
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def ingradient_view(request, restaurant_id, ingradient_id=None):
+    return Response()

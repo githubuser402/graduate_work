@@ -95,12 +95,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'restaurant',
-        'USER': 'postgres',
-        'PASSWORD': 'adm1n',
-        'HOST': '172.17.0.2',
-        'PORT': '5432',
+        'ENGINE': config['DB']['engine'],
+        'NAME': config['DB']['name'],
+        'USER': config['DB']['user'],
+        'PASSWORD': config['DB']['password'],
+        'HOST': config['DB']['host'],
+        'PORT': config['DB']['port'],
     }
 }
 

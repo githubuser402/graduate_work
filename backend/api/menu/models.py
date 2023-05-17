@@ -8,7 +8,6 @@ class Dish(models.Model):
     description = models.TextField()
     recipe = models.TextField()
     price = models.DecimalField(max_digits=8, decimal_places=2)
-    slug = models.SlugField(max_length=50)
 
     def __str__(self):
         return f"{self.name}"
@@ -46,7 +45,7 @@ class Ingradient(models.Model):
     measurement_unit = EnumField(MeasurementUnit, default=MeasurementUnit.KILOGRAMS)
     available_count = models.IntegerField()
     updated_at = models.DateTimeField(auto_now=True)
-    slug = models.SlugField()
+    slug = models.SlugField(max_length=60)
     dish = models.ForeignKey(Dish, related_name="ingradients", on_delete=models.CASCADE)
 
     def __str__(self):
@@ -91,7 +90,6 @@ class User(AbstractBaseUser):
     last_name = models.CharField(max_length=30)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
@@ -99,17 +97,6 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return self.email
-
-
-# class User(models.Model):
-    # username = models.CharField() 
-    # password = models.CharField(max_length=50)
-    # is_staff = models.BooleanField(default=False) 
-    # email = models.EmailField()
-    # slug = models.SlugField()
-# 
-    # def __str__(self):
-        # return self.username
 
 
 class Restaurant(models.Model):
@@ -134,7 +121,6 @@ class RestaurantGallery(models.Model):
 
 class Table(models.Model):
     name = models.CharField(max_length=30)
-    link = models.SlugField()
     restaurant = models.ForeignKey(Restaurant, related_name="tables", on_delete=models.CASCADE)
 
     def __str__(self):
@@ -153,7 +139,7 @@ class Order(models.Model):
     dishes = models.ManyToManyField(Dish, related_name="orders")
     user = models.ForeignKey(User, related_name="orders", on_delete=models.DO_NOTHING)
     table = models.ForeignKey(Table, related_name="tables",on_delete=models.DO_NOTHING)
-
+    
     def __str__(self):
         return f"order {self.id} {self.status}"
 
@@ -161,7 +147,6 @@ class Order(models.Model):
 class Menu(models.Model):
     title = models.CharField(max_length=60)
     image = models.ImageField(upload_to="menu_backgrounds")
-    slug = models.SlugField()
 
     def __str__(self):
         return self.title
