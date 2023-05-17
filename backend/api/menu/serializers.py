@@ -30,6 +30,10 @@ class DishImageSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(read_only=True)
+    dishes = DishSerializer(many=True, read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
+
     class Meta:
         model = Category
         fields = '__all__'

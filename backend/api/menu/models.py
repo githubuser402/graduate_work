@@ -23,9 +23,12 @@ class DishImage(models.Model):
 
 class Category(models.Model):
     title = models.CharField(max_length=60)
-    slug = models.SlugField(max_length=60)
     image = models.ImageField(upload_to="category_images")
-    dish = models.ForeignKey(Dish, related_name="categories", on_delete=models.CASCADE)
+    dishes = models.ManyToManyField(Dish, related_name="categories")
+    created_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('-created_at',)
 
     def __str__(self):
         return f"{self.title}"
@@ -148,6 +151,7 @@ class Menu(models.Model):
     title = models.CharField(max_length=60)
     image = models.ImageField(upload_to="menu_backgrounds", null=True)
     restaurants = models.ManyToManyField(Restaurant, related_name='menus')
-
+    categories = models.ManyToManyField(Category, related_name='menus')
+    
     def __str__(self):
         return self.title

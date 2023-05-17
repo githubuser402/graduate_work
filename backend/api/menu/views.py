@@ -12,13 +12,19 @@ import json
 from .models import (
     User,
     Restaurant,
-    Menu
+    Menu,
+    RestaurantGallery,
+    Category,
+    Dish,
 )
 
 from .serializers import (
     UserSerializer,
     RestaurantSerializer,
     MenuSerializer,
+    RestaurantGallerySerializer,
+    CategorySerializer,
+    DishSerializer,
 )
 
 
@@ -118,17 +124,17 @@ def menu_view(request, restaurant_id):
 
     except Restaurant.DoesNotExist:
         return Response({'detail': 'no restaurant found'}, status=status.HTTP_404_NOT_FOUND)
-    
+
     if request.method == 'GET':
         if menu_id:
             try:
                 menu = restaurant.menus.get(id=menu_id)
                 serializer = MenuSerializer(menu)
                 return Response(serializer.data, status=status.HTTP_200_OK)
-            
+
             except Menu.DoesNotExist:
                 return Response({'detail': 'menu doesnt exist'}, status=status.HTTP_404_NOT_FOUND)
-            
+
         menus = restaurant.menus.all()
         serializer = MenuSerializer(menus, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -138,35 +144,91 @@ def menu_view(request, restaurant_id):
             json_data = json.loads(request.data.get('json', {}))
         except json.JSONDecodeError:
             return Response({'detail': 'invalid json data'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         image = request.FILES.get('image', None)
         serializer = MenuSerializer(data=json_data)
-        if serializer.is_valid():
-            menu = serializer.save()
-            menu.restaurants.add(restaurant)
-            
-            if image != None:
-                menu.image.save(image.name, image)
-
-            menu.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
+        
+        if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+        
+        menu = serializer.save()
+        menu.restaurants.add(restaurant)
+
+        if image != None:
+            menu.image.save(image.name, image)
+
+        menu.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     elif request.method == 'DELETE':
+        if not menu_id:
+            return Response({'detail': 'no menu_id provided'}, status=status.HTTP_400_BAD_REQUEST)
+        
         try:
             menu = restaurant.menus.get(id=menu_id)
             menu.delete()
             return Response({'detail': 'menu deleted'}, status=status.HTTP_204_NO_CONTENT)
         except Menu.DoesNotExist:
             return Response({'detail': 'menu does not exist'}, status=status.HTTP_404_NOT_FOUND)
-        
 
-@api_view(["GET", "POST"])
+
+@api_view(["GET", "POST", "DELETE"])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
 def menu_category_view(request, restaurant_id, menu_id):
-    return Response()
+    try:
+        restaurant = Restaurant.objects.get(id=restaurant_id)
+        menu = Menu.objects.get(id=menu_id)
+    except Restaurant.DoesNotExist:
+        return Response({'detail': 'restaurant does not exist'}, status=status.HTTP_404_NOT_FOUND)
+    except Menu.DoesNotExist:
+        return Response({'detail': 'menu does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+    category_id = request.GET.get('menu_id', None)
+
+    if request.method == 'GET':
+        if category_id:
+            category = Category.objects.get(id=category_id)
+
+            if menu not in restaurant.menus.all() \
+                or category not in menu.categories.all() \
+                    or restaurant not in request.user.restaurants.all():
+                return Response({'detail': 'forbidden'}, status=status.HTTP_403_FORBIDDEN)
+            
+            serializer = CategorySerializer(category)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == 'POST':
+        try:
+            json_data = json.loads(request.data.get('json', {}))
+        except json.JSONDecodeError:
+            return Response({'detail': 'invalid json data'}, status=status.HTTP_400_BAD_REQUEST)
+
+        image = request.FILES.get('image', None)
+        serializer = MenuSerializer(data=json_data)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        category = serializer.save()
+        category.image.save(image.name, image)
+        category.menus.add(menu)
+
+        category.save()
+
+        serializer = MenuSerializer(menu)
+        return Response(serializer.data)        
+
+    elif request.method == 'DELETE':
+        if not category_id:
+            return Response({'detail': 'no category_id provided'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            category = restaurant.menus.get(id=menu_id)
+            category.delete()
+            return Response({'detail': 'category deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except Menu.DoesNotExist:
+            return Response({'detail': 'category does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["GET", "POST"])
