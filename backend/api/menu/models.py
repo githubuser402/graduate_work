@@ -16,7 +16,7 @@ class Dish(models.Model):
 class DishImage(models.Model):
     dish = models.ForeignKey(Dish, related_name="images", on_delete=models.CASCADE)
     image = models.ImageField(upload_to="dish_images")
-
+    
     def __str__(self):
         return f"dish image {self.id}"
     
@@ -152,6 +152,7 @@ class Menu(models.Model):
     image = models.ImageField(upload_to="menu_backgrounds", null=True)
     restaurants = models.ManyToManyField(Restaurant, related_name='menus')
     categories = models.ManyToManyField(Category, related_name='menus')
+    dishes = models.ManyToManyField(Dish, related_name='menus')
     
     def __str__(self):
         return self.title

@@ -17,23 +17,58 @@ from .models import (
 )
 
 
-class DishSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Dish
-        fields = '__all__'
-
-
 class DishImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = DishImage
         fields = '__all__'
 
 
+class DishSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(max_length=60)
+    description = serializers.CharField()
+    recipe = serializers.CharField()
+    price = serializers.DecimalField(max_digits=8, decimal_places=2)
+    categories_id = serializers.ListField(child=serializers.IntegerField(), write_only=True)
+
+    def __init__(self, *args, **kwargs):
+        fields = kwargs.pop('fields', None)  # Retrieve the 'fields' argument
+        super().__init__(*args, **kwargs)
+
+        if fields is not None:
+            allowed = set(fields)
+            existing = set(self.fields.keys())
+
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
+
+
+    def create(self, validated_data):
+        categories_id = validated_data.pop('categories_id', [])
+        dish = Dish.objects.create(**validated_data)
+
+        # Add categories to the dish
+        # dish.categories.set(categories_id)
+        return dish
+
+    def update(self, instance, validated_data):
+        categories_id = validated_data.pop('categories_id', [])
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description', instance.description)
+        instance.recipe = validated_data.get('recipe', instance.recipe)
+        instance.price = validated_data.get('price', instance.price)
+
+        # Update categories of the dish
+        # instance.categories.set(categories_id)
+        instance.save()
+        return instance
+    
+
 class CategorySerializer(serializers.ModelSerializer):
     image = serializers.ImageField(read_only=True)
-    dishes = DishSerializer(many=True, read_only=True)
+    dishes = DishSerializer(many=True, read_only=True, fields=['id', 'name', 'price'])
     created_at = serializers.DateTimeField(read_only=True)
-
+    
     class Meta:
         model = Category
         fields = '__all__'

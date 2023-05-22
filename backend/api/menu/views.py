@@ -147,10 +147,10 @@ def menu_view(request, restaurant_id):
 
         image = request.FILES.get('image', None)
         serializer = MenuSerializer(data=json_data)
-        
+
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
         menu = serializer.save()
         menu.restaurants.add(restaurant)
 
@@ -163,7 +163,7 @@ def menu_view(request, restaurant_id):
     elif request.method == 'DELETE':
         if not menu_id:
             return Response({'detail': 'no menu_id provided'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             menu = restaurant.menus.get(id=menu_id)
             menu.delete()
@@ -184,19 +184,26 @@ def menu_category_view(request, restaurant_id, menu_id):
     except Menu.DoesNotExist:
         return Response({'detail': 'menu does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
-    category_id = request.GET.get('menu_id', None)
+    category_id = request.GET.get('category_id', None)
 
     if request.method == 'GET':
         if category_id:
-            category = Category.objects.get(id=category_id)
+            try:
+                category = Category.objects.get(id=category_id)
+            except Category.DoesNotExist:
+                return Response({'detail': 'category does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
             if menu not in restaurant.menus.all() \
                 or category not in menu.categories.all() \
                     or restaurant not in request.user.restaurants.all():
                 return Response({'detail': 'forbidden'}, status=status.HTTP_403_FORBIDDEN)
-            
+
             serializer = CategorySerializer(category)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            categories = Category.objects.all()
+            serialiser = CategorySerializer(categories, many=True)
+            return Response(serialiser.data, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
         try:
@@ -205,7 +212,7 @@ def menu_category_view(request, restaurant_id, menu_id):
             return Response({'detail': 'invalid json data'}, status=status.HTTP_400_BAD_REQUEST)
 
         image = request.FILES.get('image', None)
-        serializer = MenuSerializer(data=json_data)
+        serializer = CategorySerializer(data=json_data)
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -216,13 +223,13 @@ def menu_category_view(request, restaurant_id, menu_id):
 
         category.save()
 
-        serializer = MenuSerializer(menu)
-        return Response(serializer.data)        
+        serializer = CategorySerializer(category)
+        return Response(serializer.data)
 
     elif request.method == 'DELETE':
         if not category_id:
             return Response({'detail': 'no category_id provided'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
         try:
             category = restaurant.menus.get(id=menu_id)
             category.delete()
@@ -231,11 +238,68 @@ def menu_category_view(request, restaurant_id, menu_id):
             return Response({'detail': 'category does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(["GET", "POST"])
+@api_view(["GET", "POST", "DELETE"])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
 def dish_view(request, restaurant_id, menu_id):
-    return Response()
+    try:
+        restaurant = Restaurant.objects.get(id=restaurant_id)
+        menu = Menu.objects.get(id=menu_id)
+    except Restaurant.DoesNotExist:
+        return Response({'detail': 'restaurant does not exist'}, status=status.HTTP_404_NOT_FOUND)
+    except Menu.DoesNotExist:
+        return Response({'detail': 'menu does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+    dish_id = request.GET.get('dish_id', None)
+
+    if request.method == 'GET':
+        if dish_id:
+            try:
+                dish = menu.dishes.get(id=dish_id)
+            except Dish.DoesNotExist:
+                return Response({'detail': 'dish does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            
+            if menu not in restaurant.menus.all() \
+                    or restaurant not in request.user.restaurants.all():
+                return Response({'detail': 'forbidden'}, status=status.HTTP_403_FORBIDDEN)
+            
+            serialiser = DishSerializer(dish)
+            return Response(serialiser.data, status=status.HTTP_200_OK)
+
+        dishes = Dish.objects.all()
+        serialiser = DishSerializer(dishes, many=True)
+        return Response(serialiser.data, status=status.HTTP_200_OK)
+    
+    elif request.method == 'POST':
+        serialiser = DishSerializer(data=request.data)
+
+        if not serialiser.is_valid():
+            return Response(serialiser.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        categories_id = set(serialiser.validated_data["categories_id"])
+        dish = serialiser.save()
+        menu.dishes.add(dish)
+        
+        # print('\n', set(category[0] for category in menu.categories.values_list('id')))
+        categories_to_add = Category.objects.filter(id__in=list(set(category[0] for category in menu.categories.values_list('id')) & categories_id))
+        print('\n\nCategories to add: ', categories_to_add, '\n')
+        dish.categories.set(categories_to_add)
+        
+        dish.save()
+        serialiser = DishSerializer(dish)
+        return Response(serialiser.data, status=status.HTTP_201_CREATED)
+    
+    elif request.method == 'DELETE':
+        if not dish_id:
+            return Response({'detail': 'dish_id is not provided'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            dish = Dish.objects.get(id=dish_id)
+            dish.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
+        except Dish.DoesNotExist:
+            return Response({'detail': 'dish does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["GET", "POST"])
