@@ -60,7 +60,7 @@ def user_view(request):
 
 @api_view(["GET", "POST", 'DELETE'])
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def restaurant_view(request):
     restaurant_id = request.GET.get('restaurant_id', None)
     if request.method == 'GET':
@@ -104,14 +104,14 @@ def restaurant_view(request):
 
 
 @api_view(['GET', 'POST', 'DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 @authentication_classes([JWTAuthentication])
 def restaurant_gallery_view(request):
     return Response()
 
 
 @api_view(["GET", "POST", 'DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 @authentication_classes([JWTAuthentication])
 @parser_classes([MultiPartParser, FormParser])
 def menu_view(request, restaurant_id):
@@ -173,7 +173,7 @@ def menu_view(request, restaurant_id):
 
 
 @api_view(["GET", "POST", "DELETE"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 @authentication_classes([JWTAuthentication])
 def menu_category_view(request, restaurant_id, menu_id):
     try:
@@ -239,7 +239,7 @@ def menu_category_view(request, restaurant_id, menu_id):
 
 
 @api_view(["GET", "POST", "DELETE"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 @authentication_classes([JWTAuthentication])
 def dish_view(request, restaurant_id, menu_id):
     try:
@@ -303,21 +303,21 @@ def dish_view(request, restaurant_id, menu_id):
 
 
 @api_view(["GET", "POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 @authentication_classes([JWTAuthentication])
 def dish_image_view(request, restaurant_id, menu_id, dish_id):
     return Response()
 
 
 @api_view(["GET", "POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 @authentication_classes([JWTAuthentication])
 def ingradient_view(request, restaurant_id):
     return Response()
 
 
 @api_view(["GET", "POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 @authentication_classes([JWTAuthentication])
 def table_view(request, restaurant_id):
     return Response()
