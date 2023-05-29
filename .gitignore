@@ -1,3 +1,4 @@
+backend/requests.sh
 # Logs
 logs
 *.log

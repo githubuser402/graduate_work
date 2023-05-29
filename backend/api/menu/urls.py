@@ -11,11 +11,16 @@ from .views import (
     dish_image_view,
 )
 
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView)
+
 
 urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('u/', user_view, name='user'),
     path('r/', restaurant_view, name='restaurant_view'),
     path('r/<int:restaurant_id>/g/', restaurant_gallery_view, name='restaurant_gallery_view'),

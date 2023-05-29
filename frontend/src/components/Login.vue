@@ -1,6 +1,6 @@
 <template>
   <div id="login-form">
-    <!-- <Message message="Hello World" show="false"></Message> -->
+    
     <h2>{{ isRegister ? 'Register' : 'Login' }}</h2>
     <form v-if="!isRegister" @submit.prevent="login">
       <label for="email">Email:</label>
@@ -45,6 +45,16 @@ export default {
   data() {
     return {
       isRegister: false,
+      // loginData: {
+      //   email: '',
+      //   password: ''
+      // },
+      // registerData: {
+      //   firstName: '',
+      //   lastName: '',
+      //   email: '',
+      //   password: ''
+      // }
     };
   },
   components: {
@@ -57,13 +67,13 @@ export default {
     register() {
       this.$store.dispatch('sendRegisterRequest')
         .then((response) => {
-          console.log('Response', response);
-          this.$store.state.user.loginData.email = response.data.email;
-          this.$store.state.user.loginData.password = response.data.password;
-        }).catch((error) => {
+          this.$store.commit('setLoginEmail', this.$store.state.user.registerData.email);
+          this.$store.commit('setLoginPassword', this.$store.state.user.registerData.password);
+          this.$store.dispatch('sendLoginRequest');
+          this.$store.commit('clearUserFields');
+        }), error => {
           console.log('Error', error);
-        });
-      this.$store.dispatch('sendLoginRequest');
+        };
     },
     toggleForm() {
       this.isRegister = !this.isRegister;

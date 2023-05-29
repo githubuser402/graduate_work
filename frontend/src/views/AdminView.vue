@@ -1,7 +1,6 @@
 <template>
     <div id="admin-view">
-        <RouterLink :to="{name: 'home'}">Home</RouterLink>
-        <Login v-if="!$store.getters.loggedIn"></Login> 
+        <Login class="login-style" v-if="!$store.getters.loggedIn"></Login>
         <Admin v-else></Admin>
     </div>
 </template>
@@ -16,6 +15,9 @@ export default {
         return {
         }
     },
+    beforeMount() {
+        this.$store.dispatch('checkLogin');
+    },
     components: {
         Login,
         Admin,
@@ -29,9 +31,12 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 #admin-view {
-    display: flex;
-    justify-content: center;
+    margin: 0 auto;
+}
+.login-style {
+    margin: 0 auto;
+    width: 50%;
 }
 </style>
