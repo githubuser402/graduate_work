@@ -1,13 +1,23 @@
 import { createStore } from 'vuex';
 import restaurant from './restaurant';
+import menu from './menu';
+import category from './category';
+import dish from './dish';
 
 const REST_API = 'http://127.0.0.1:8000/menu/v1';
 
 const store = createStore({
     modules: {
         restaurant,
+        menu,
+        category,
+        dish,
     },
     state: {
+        urls: {
+            REST_API: 'http://localhost:8000/menu/v1',
+            API_DOMAIN: 'http://localhost:8000',
+        },
         user: {
             loggedIn: false,
             loginData: {
@@ -21,9 +31,6 @@ const store = createStore({
                 password: ''
             },
         },
-        menu: {
-            items: [],
-        }
     },
     mutations: {
         logOut(state, payload) {
@@ -165,8 +172,15 @@ const store = createStore({
     },
     getters: {
         loggedIn(state) {
+            console.log(state.user.loggedIn)
             return state.user.loggedIn;
-        }
+        },
+        getDomain(state) {
+            return state.urls.API_DOMAIN;
+        },
+        getAPIURL(state) {
+            return state.urls.REST_API;
+        },
     }
 });
 

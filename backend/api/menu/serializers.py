@@ -30,6 +30,7 @@ class DishSerializer(serializers.Serializer):
     recipe = serializers.CharField()
     price = serializers.DecimalField(max_digits=8, decimal_places=2)
     categories_id = serializers.ListField(child=serializers.IntegerField(), write_only=True)
+    images = DishImageSerializer(many=True, read_only=True)
 
     def __init__(self, *args, **kwargs):
         fields = kwargs.pop('fields', None)  # Retrieve the 'fields' argument
@@ -64,15 +65,28 @@ class DishSerializer(serializers.Serializer):
         return instance
     
 
-class CategorySerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    title = serializers.CharField(max_length=60)
     image = serializers.ImageField(read_only=True)
     dishes = DishSerializer(many=True, read_only=True, fields=['id', 'name', 'price'])
     created_at = serializers.DateTimeField(read_only=True)
-    
-    class Meta:
-        model = Category
-        fields = '__all__'
 
+    
+    def __init__(self, *args, **kwargs):
+        fields = kwargs.pop('fields', None)  # Retrieve the 'fields' argument
+        super().__init__(*args, **kwargs)
+
+        if fields is not None:
+            allowed = set(fields)
+            existing = set(self.fields.keys())
+
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
+
+    def create(self, validated_data):
+        return Category.objects.create(**validated_data)
+    
 
 class IngradientSerializer(serializers.ModelSerializer):
     measurement_unit = serializers.ChoiceField(choices=MeasurementUnit.choices())
@@ -136,8 +150,10 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class MenuSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(allow_empty_file=False, use_url=True, read_only=True)
-    restaurants = RestaurantSerializer(many=True, read_only=True)
+    # categories = CategorySerializer(many=True, read_only=True, fields=['id', 'title', 'image', 'created_at'])
+    # dishes = DishSerializer(many=True, read_only=True) 
 
     class Meta:
         model = Menu
-        fields = '__all__'
+        # fields = '__all__'
+        exclude = ('restaurants', 'dishes', 'categories',)

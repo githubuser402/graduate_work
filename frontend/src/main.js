@@ -1,4 +1,5 @@
 import { createApp, provide } from 'vue'
+import 'bootstrap/dist/css/bootstrap.css'
 import App from './App.vue'
 import router from './router'
 import store from './vuex'
@@ -12,4 +13,5 @@ app.use(store)
 
 app.mount('#app')
 
+import 'bootstrap/dist/js/bootstrap.js'
 export default app

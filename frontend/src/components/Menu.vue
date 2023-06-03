@@ -1,6 +1,6 @@
 <template>
     <div>
-
+        I am component to delete
     </div>
 </template>
 
@@ -17,9 +17,10 @@ export default {
     },
     computed: {
     },
+    mounter() {
+        console.log('Menu component mounted');
+    },
 };
 </script>
 
-<style scoped>
-
-</style>
+<style></style>

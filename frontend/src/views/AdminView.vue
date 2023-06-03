@@ -17,6 +17,13 @@ export default {
     },
     beforeMount() {
         this.$store.dispatch('checkLogin');
+        if (!this.$store.getters.loggedIn) {
+            this.$router.push({ name: 'admin' });
+            this.$store.state.user.loggedIn = false;
+        }
+    },
+    beforeMount() {
+        this.$store.dispatch('checkLogin');
     },
     components: {
         Login,

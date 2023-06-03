@@ -9,6 +9,7 @@ from .views import (
     menu_category_view,
     ingradient_view,
     dish_image_view,
+    server_error
 )
 
 from rest_framework_simplejwt.views import (
@@ -16,6 +17,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView)
 
+handler500 = server_error
 
 urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
