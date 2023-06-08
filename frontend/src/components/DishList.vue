@@ -5,7 +5,7 @@
             <button v-if="$store.getters.loggedIn" class="btn btn-primary" @click="showForm=true">Add Dish</button>
         </div>
 
-        <div v-if="showForm === true" class="floating-window rounded rounded-3 p-5 m-3">
+        <div v-if="showForm === true" style="transform: translate('-50%', '-50%'); top: 50%; background-color: antiquewhite;" class="floating-window rounded rounded-3 p-5 m-3">
             <form v-on:submit.prevent="">
                 <div class="mb-3">
                     <label for="nameInput" class="form-label">Dish name</label>
@@ -29,6 +29,10 @@
                     <input type="number" v-model="formData.price" class="form-control" id="priceInput"
                         aria-describedby="titleHelp">
                 </div>
+                <div class="mb-3">
+                    <label for="imageInput">Image</label>
+                    <input class="form-control" @change="handleFileChange" type="file" accept="image/*" id="imageInput">
+                </div>
                 <div class="d-flex flex-row">
                     <button class="btn btn-primary m-2" style="background-color: white;  color: blue;" @click="showForm = false">Cancel</button>
                     <button type="submit" @click="submitForm" class="btn btn-primary m-2">Create</button>
@@ -36,9 +40,10 @@
             </form>
         </div>
 
-        <div class="border border-2 border-success rounded-4 m-3 d-flex row">
+        <div v-if="getDishes().length !== 0" class="border border-2 border-success rounded-4 m-3 d-flex row">
             <div v-for="dish in getDishes()" :key="dish.id" class="card border min-height-200 p-3 m-3 border-primary border-2"
                 style="width: 18rem; border-color: greenyellow">
+                <img :src="$store.getters.getDomain + dish.image" class="card-img-top" alt="">
                 <router-link :to="{
                     name: 'admin-dish',
                     params: {
@@ -67,6 +72,7 @@ export default {
                 description: '',
                 recipe: '',
                 price: '',
+                image: null,
             },
         }
     },
@@ -82,6 +88,9 @@ export default {
                 dish: this.formData,
             });
             this.showForm = false;
+        },
+        handleFileChange(e) {
+            this.formData.image = e.target.files[0];
         },
     },
     mounted() {

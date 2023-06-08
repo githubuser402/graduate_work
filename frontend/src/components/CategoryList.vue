@@ -17,28 +17,31 @@
                     <input class="form-control" @change="handleFileChange" type="file" accept="image/*" id="imageInput">
                 </div>
                 <div class="d-flex flex-row">
-                    <button class="btn btn-primary m-2" style="background-color: white;  color: blue;" @click="showForm = false">Cancel</button>
+                    <button class="btn btn-primary m-2" style="background-color: white;  color: blue;"
+                        @click="showForm = false">Cancel</button>
                     <button type="submit" @click="submitForm" class="btn btn-primary m-2">Create</button>
                 </div>
             </form>
         </div>
 
-        <div class="border border-2 border-success rounded-4 m-3 flex-direction row">
+        <div v-if="getCategories().length !== 0" class="border border-2 border-success rounded-4 m-3 flex-direction row">
             <div v-for="category in getCategories()" :key="category.id"
                 class="card  border min-height-200 p-3 m-3 border-primary border-2"
                 style="width: 18rem; border-color: greenyellow">
-                <img :src="$store.state.urls.API_DOMAIN + category.image" class="card-img-top rounded overflow-hidden"
-                    style="width: 100%; height: 150px;" alt="">
-                <router-link :to="{
-                    name: 'admin-category',
-                    params: {
-                        restaurantId: $route.params.restaurantId,
-                        menuId: $route.params.menuId,
-                        categoryId: encodeURIComponent(category.id)
-                    }
-                }">
-                    <h5 class="card-title m-4">{{ category.title }}</h5>
-                </router-link>
+                <div class="card-body">
+                    <img :src="$store.state.urls.API_DOMAIN + category.image" class="card-img-top rounded overflow-hidden"
+                        style="width: 100%; height: 150px;" alt="">
+                    <router-link :to="{
+                        name: 'admin-category',
+                        params: {
+                            restaurantId: $route.params.restaurantId,
+                            menuId: $route.params.menuId,
+                            categoryId: encodeURIComponent(category.id)
+                        }
+                    }">
+                        <h5 class="card-title m-4">{{ category.title }}</h5>
+                    </router-link>
+                </div>
             </div>
         </div>
     </div>

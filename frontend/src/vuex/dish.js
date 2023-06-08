@@ -18,7 +18,10 @@ export default {
             fetch(`${REST_API}/r/${restaurantId}/m/${menuId}/d/`,
                 {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json', },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    },
                 }).then(response => {
                     if (response.ok) {
                         return response;
@@ -39,7 +42,10 @@ export default {
             fetch(`${REST_API}/r/${restaurantId}/m/${menuId}/d/?id=${dishId}`,
                 {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json', },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    },
                 }).then(response => {
                     if (response.ok) {
                         return response;
@@ -56,15 +62,18 @@ export default {
                     alert('error getting dish');
                 });
         },
-        createDish(store, { restaurantId, menuId, dish}) {
+        createDish(store, { restaurantId, menuId, dish }) {
+            const formData = new FormData();
+            formData.append('json', JSON.stringify({ name: dish.name, description: dish.description, recipe: dish.recipe, price: dish.price, categories_id: [] }));
+            formData.append('image', dish.image);
+            
             fetch(`${REST_API}/r/${restaurantId}/m/${menuId}/d/`,
                 {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                     },
-                    body: JSON.stringify({ name: dish.name, description: dish.description, recipe: dish.recipe, price: dish.price, categories_id: [] }),
+                    body: formData,
                 }).then(response => {
                     if (response.ok) {
                         return response;
@@ -79,6 +88,28 @@ export default {
                 }).catch(error => {
                     console.log(error);
                     alert('error creating dish');
+                });
+        },
+        deleteDish(store, { restaurantId, menuId, dishId }) {
+            fetch(`${REST_API}/r/${restaurantId}/m/${menuId}/d/?id=${dishId}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    },
+                }).then(response => {
+                    if (response.ok) {
+                        return response;
+                    }
+                    else {
+                        throw new Error(response.json());
+                    }
+                }).then(data => {
+                    store.state.dishes = store.state.dishes.filter(dish => dish.id !== dishId);
+                }).catch(error => {
+                    console.log(error);
+                    alert('error deleting dish');
                 });
         },
     },

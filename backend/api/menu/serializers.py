@@ -31,6 +31,7 @@ class DishSerializer(serializers.Serializer):
     price = serializers.DecimalField(max_digits=8, decimal_places=2)
     categories_id = serializers.ListField(child=serializers.IntegerField(), write_only=True)
     images = DishImageSerializer(many=True, read_only=True)
+    image = serializers.ImageField(read_only=True)
 
     def __init__(self, *args, **kwargs):
         fields = kwargs.pop('fields', None)  # Retrieve the 'fields' argument
@@ -156,4 +157,4 @@ class MenuSerializer(serializers.ModelSerializer):
     class Meta:
         model = Menu
         # fields = '__all__'
-        exclude = ('restaurants', 'dishes', 'categories',)
+        exclude = ('restaurant',)

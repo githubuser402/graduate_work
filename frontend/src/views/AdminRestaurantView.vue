@@ -1,14 +1,21 @@
 <template>
     <div>
-        <div class="border border-1 m-1">
-            <router-link class="btn" :to="{name: 'home'}">Home</router-link>
-            <router-link class="btn" :to="{name: 'admin'}">Restaurants</router-link>
+        <div class="d-flex column justify-content-between gap-4">
+            <div class="border border-1 m-1">
+                <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
+                <router-link class="btn" :to="{ name: 'admin' }">Restaurants</router-link>
+            </div>
+            <div>
+                <button type="button" class="btn btn-outline-secondary m-1 rounded-0" @click="deleteRestaurant()" style="width:80px;">Delete</button>
+            </div>
         </div>
-        <!-- <Breadcrumbs /> -->
-        <!-- <router-link :to="{ name: 'admin-restaurant-edit', params: { id: getRestaurant().id } }">Edit</router-link> -->
-        <center>
+        <div class="d-flex justify-content-center column">
             <h1>{{ getRestaurant().name }}</h1>
-        </center>
+        </div>
+        <div class="border border-3 m-3 p-2 rounded-4">
+            <p>Address: {{ getRestaurant().address }}</p>
+            <p>Description: {{ getRestaurant().description }}</p>
+        </div>
         <MenuList />
     </div>
 </template>
@@ -38,6 +45,10 @@ export default {
     methods: {
         ...mapActions('restaurant', ['fetchRestaurant']),
         ...mapGetters('restaurant', ['getRestaurant']),
+        deleteRestaurant() {
+            this.$store.dispatch('restaurant/deleteRestaurant', { restaurantId: this.$route.params.id });
+            this.$router.push({ name: 'admin' });
+        },
     },
     mounted() {
         this.fetchRestaurant(this.$route.params.id);

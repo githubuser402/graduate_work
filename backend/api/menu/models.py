@@ -1,37 +1,9 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from enumfields import Enum, EnumField
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 
-
-class Dish(models.Model):
-    name = models.CharField(max_length=60)
-    description = models.TextField()
-    recipe = models.TextField()
-    price = models.DecimalField(max_digits=8, decimal_places=2)
-
-    def __str__(self):
-        return f"{self.name}"
-    
-
-class DishImage(models.Model):
-    dish = models.ForeignKey(Dish, related_name="images", on_delete=models.CASCADE)
-    image = models.ImageField(upload_to="dish_images")
-    
-    def __str__(self):
-        return f"dish image {self.id}"
-    
-
-class Category(models.Model):
-    title = models.CharField(max_length=60)
-    image = models.ImageField(upload_to="category_images")
-    dishes = models.ManyToManyField(Dish, related_name="categories")
-    created_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ('-created_at',)
-
-    def __str__(self):
-        return f"{self.title}"
     
 
 class MeasurementUnit(Enum):
@@ -41,18 +13,6 @@ class MeasurementUnit(Enum):
     MILLILITERS = 'ml'
     PIECES = 'pieces'
     PACKS = 'packs'
-
-
-class Ingradient(models.Model):
-    name = models.CharField(max_length=60)
-    measurement_unit = EnumField(MeasurementUnit, default=MeasurementUnit.KILOGRAMS)
-    available_count = models.IntegerField()
-    updated_at = models.DateTimeField(auto_now=True)
-    slug = models.SlugField(max_length=60)
-    dish = models.ForeignKey(Dish, related_name="ingradients", on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
 
     
 class PaymentStatus(Enum):
@@ -136,6 +96,64 @@ class OrderStatus(Enum):
     CANCELLED = 'Cancelled'
 
 
+class Menu(models.Model):
+    title = models.CharField(max_length=60)
+    image = models.ImageField(upload_to="menu_backgrounds", null=True)
+    restaurant = models.ForeignKey(Restaurant, related_name='menus', on_delete=models.CASCADE)
+    # categories = models.ManyToManyField(Category, related_name='menus')
+    # dishes = models.ManyToManyField(Dish, related_name='menus')
+    
+    def __str__(self):
+        return self.title
+    
+
+
+class Dish(models.Model):
+    image = models.ImageField(upload_to="dish_images")
+    name = models.CharField(max_length=60)
+    description = models.TextField()
+    recipe = models.TextField()
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    menu = models.ForeignKey(Menu, related_name="dishes", on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f"{self.name}"
+    
+
+class DishImage(models.Model):
+    dish = models.ForeignKey(Dish, related_name="images", on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="dish_images")
+    
+    def __str__(self):
+        return f"dish image {self.id}"
+    
+
+class Category(models.Model):
+    title = models.CharField(max_length=60)
+    image = models.ImageField(upload_to="category_images")
+    dishes = models.ManyToManyField(Dish, related_name="categories")
+    created_at = models.DateTimeField(auto_now=True)
+    menu = models.ForeignKey(Menu, related_name="categories", on_delete=models.CASCADE)
+    
+    class Meta:
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return f"{self.title}"
+    
+
+class Ingradient(models.Model):
+    name = models.CharField(max_length=60)
+    measurement_unit = EnumField(MeasurementUnit, default=MeasurementUnit.KILOGRAMS)
+    available_count = models.IntegerField()
+    updated_at = models.DateTimeField(auto_now=True)
+    slug = models.SlugField(max_length=60)
+    dish = models.ForeignKey(Dish, related_name="ingradients", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+
 class Order(models.Model):
     time = models.DateTimeField(auto_created=True)
     status = EnumField(OrderStatus, default=OrderStatus.COOKING)
@@ -145,14 +163,3 @@ class Order(models.Model):
     
     def __str__(self):
         return f"order {self.id} {self.status}"
-
-
-class Menu(models.Model):
-    title = models.CharField(max_length=60)
-    image = models.ImageField(upload_to="menu_backgrounds", null=True)
-    restaurants = models.ManyToManyField(Restaurant, related_name='menus')
-    categories = models.ManyToManyField(Category, related_name='menus')
-    dishes = models.ManyToManyField(Dish, related_name='menus')
-    
-    def __str__(self):
-        return self.title

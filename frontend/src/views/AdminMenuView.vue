@@ -1,9 +1,17 @@
 <template>
     <div>
-        <div class="border border-1 m-1">
-            <router-link class="btn" :to="{name: 'home'}">Home</router-link>
-            <router-link class="btn" :to="{name: 'admin'}">Restaurants</router-link>
-            <router-link class="btn" :to="{name: 'admin-restaurant', params: { id: $route.params.restaurantId }}">Menus</router-link>
+        <div class="d-flex column justify-content-between gap-4">
+            <div class="border border-1 m-1">
+                <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
+                <router-link class="btn" :to="{ name: 'admin' }">Restaurants</router-link>
+                <router-link class="btn"
+                    :to="{ name: 'admin-restaurant', params: { id: $route.params.restaurantId } }">Menus</router-link>
+            </div>
+            <div>
+                <button class="btn btn-outline-secondary m-1 rounded-0" style="width: 200px;">
+                    Generate QR-code</button>
+                <button type="button" class="btn btn-outline-secondary m-1 rounded-0" @click="deleteMenu" style="width:80px;">Delete</button>
+            </div>
         </div>
         <!-- <img :src="$store.getters.getDomain + getMenu().image" alt="Background Image"> -->
         <div class="d-flex justify-content-center">
@@ -42,8 +50,12 @@ export default {
         // console.log('menu:', this.getMenu());
     },
     methods: {
-        ...mapActions('menu', ['fetchMenu']),
+        ...mapActions('menu', ['fetchMenu', 'deleteMenu']),
         ...mapGetters('menu', ['getMenu']),
+        deleteMenu(){
+            this.$store.dispatch('menu/deleteMenu', { restaurantId: this.$route.params.restaurantId, menuId: this.$route.params.menuId });
+            this.$router.push({ name: 'admin-restaurant', params: { id: this.$route.params.restaurantId } });
+        },
     },
     computed: {
         setBackground() {

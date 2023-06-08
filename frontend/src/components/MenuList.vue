@@ -23,7 +23,7 @@
             </form>
         </div>
 
-        <div class="border border-2 border-success rounded-4 m-3 d-flex row">
+        <div v-if="getMenus().length !== 0" class="border border-2 border-success rounded-4 m-3 d-flex row">
             <div v-for="menu in getMenus()" :key="menu.id" class="card border p-3 m-3 border-primary border-2" style="width: 18rem; border-color: greenyellow">
                 <img :src="$store.getters.getDomain + menu.image" class="card-img-top" alt="...">
                 <router-link :to="{ name: 'admin-menu', params: { restaurantId: encodeURIComponent($route.params.id), menuId: encodeURIComponent(menu.id) } }">

@@ -20,7 +20,10 @@ export default {
             fetch(`${REST_API}/r/`,
                 {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json', },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    },
                 }).then(response => {
                     if (response.ok) {
                         return response;
@@ -38,20 +41,74 @@ export default {
         },
         fetchRestaurant(store, id) {
             fetch(`${REST_API}/r/?id=${id}`,
-            {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json', },
-            }).then(response => {
-                if (response.ok) {
-                    return response;
-                } else {
-                    throw new Error(response.json());
-                }
-            }).then(data => {
-                return data.json();
-            }).then(json => {
-                store.state.restaurant = json;
-            })
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    },
+                }).then(response => {
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        throw new Error(response.json());
+                    }
+                }).then(data => {
+                    return data.json();
+                }).then(json => {
+                    store.state.restaurant = json;
+                })
+        },
+        createRestaurant(store, payload) {
+            fetch(`${REST_API}/r/`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    },
+                    body: JSON.stringify({
+                        'name': payload.name,
+                        'description': payload.description,
+                        'address': payload.address,
+                        'contact_number': payload.contact_number,
+                        'email': payload.email,
+                    }),
+                }).then(response => {
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        throw new Error(response.json());
+                    }
+                }).then(data => {
+                    return data.json();
+                }).then(json => {
+                    store.state.restaurants.push(json);
+                }).catch(error => {
+                    console.log(error);
+                    alert('error creating restaurant');
+                });
+        },
+        deleteRestaurant(store, {restaurantId}) {
+            fetch(`${REST_API}/r/?id=${restaurantId}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    },
+                }).then(response => {
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        throw new Error(response.json());
+                    }
+                }).then(data => {
+                    store.state.restaurants = store.state.restaurants.filter(restaurant => restaurant.id !== restaurantId);
+                }).catch(error => {
+                    console.log(error);
+                    alert('error deleting restaurant');
+                });
         },
     },
     getters: {

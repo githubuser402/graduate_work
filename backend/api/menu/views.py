@@ -64,7 +64,7 @@ def user_view(request):
 
 @api_view(["GET", "POST", 'DELETE'])
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticatedOrReadOnly])
+@permission_classes([IsAuthenticated])
 def restaurant_view(request):
     try:
         restaurant_id = request.GET.get('id', None)
@@ -76,13 +76,14 @@ def restaurant_view(request):
     if request.method == 'GET':
         if restaurant_id:
             try:
-                restaurant = Restaurant.objects.get(id=restaurant_id)
+                print(request.user)
+                restaurant = request.user.restaurants.get(id=restaurant_id)
                 serializer = RestaurantSerializer(restaurant)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except Restaurant.DoesNotExist:
                 return Response({'detail': 'Restaurant not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        restaurants = Restaurant.objects.all()
+        restaurants = request.user.restaurants.all()
         serializer = RestaurantSerializer(restaurants, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -92,8 +93,10 @@ def restaurant_view(request):
             return Response({'detail': 'Not valid data', 'errors': serializer.error_messages}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
         try:
-            serializer.users.add(request.user)
-            serializer.save()
+            # serializer.users.add(request.user)
+            restaurant = serializer.save()
+            restaurant.users.add(request.user)
+            restaurant.save()
             return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response({'detail': 'Restaurant exists'}, status=status.HTTP_409_CONFLICT)
@@ -102,7 +105,7 @@ def restaurant_view(request):
         if not restaurant_id:
             return Response({'detail': 'No restaurant_id provided'}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            restaurant = Restaurant.objects.get(id=restaurant_id)
+            restaurant = request.user.restaurants.get(id=restaurant_id)
             if request.user in restaurant.users.all():
                 restaurant.delete()
                 return Response({'detail': 'restaurant deleted'}, status=status.HTTP_204_NO_CONTENT)
@@ -121,7 +124,7 @@ def restaurant_gallery_view(request):
 
 
 @api_view(["GET", "POST", 'DELETE'])
-@permission_classes([IsAuthenticatedOrReadOnly])
+@permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
 @parser_classes([MultiPartParser, FormParser])
 def menu_view(request, restaurant_id):
@@ -133,7 +136,7 @@ def menu_view(request, restaurant_id):
         return Response({'detail': 'menu_id must be integer'}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
-        restaurant = Restaurant.objects.get(id=restaurant_id)
+        restaurant = request.user.restaurants.get(id=restaurant_id)
 
     except Restaurant.DoesNotExist:
         return Response({'detail': 'no restaurant found'}, status=status.HTTP_404_NOT_FOUND)
@@ -153,13 +156,15 @@ def menu_view(request, restaurant_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
-        if request.user not in restaurant.users.all():
-            return Response({'detail': 'forbidden'}, status=status.HTTP_403_FORBIDDEN)
+        # if request.user not in restaurant.users.all():
+        #     return Response({'detail': 'forbidden'}, status=status.HTTP_403_FORBIDDEN)
 
         try:
             json_data = json.loads(request.data.get('json', {}))
         except json.JSONDecodeError:
             return Response({'detail': 'invalid json data'}, status=status.HTTP_400_BAD_REQUEST)
+
+        print(json_data)
 
         image = request.FILES.get('image', None)
         serializer = MenuSerializer(data=json_data)
@@ -167,13 +172,16 @@ def menu_view(request, restaurant_id):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        menu = serializer.save()
-        menu.restaurants.add(restaurant)
+        # menu = serializer.save()
+        menu = Menu(**serializer.validated_data)
+        menu.restaurant = restaurant
 
         if image != None:
             menu.image.save(image.name, image)
 
         menu.save()
+
+        serializer = MenuSerializer(menu)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     elif request.method == 'DELETE':
@@ -192,12 +200,12 @@ def menu_view(request, restaurant_id):
 
 
 @api_view(["GET", "POST", "DELETE"])
-@permission_classes([IsAuthenticatedOrReadOnly])
+@permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
 def menu_category_view(request, restaurant_id, menu_id):
     try:
-        restaurant = Restaurant.objects.get(id=restaurant_id)
-        menu = Menu.objects.get(id=menu_id)
+        restaurant = request.user.restaurants.get(id=restaurant_id)
+        menu = restaurant.menus.get(id=menu_id)
     except Restaurant.DoesNotExist:
         return Response({'detail': 'restaurant does not exist'}, status=status.HTTP_404_NOT_FOUND)
     except Menu.DoesNotExist:
@@ -213,7 +221,7 @@ def menu_category_view(request, restaurant_id, menu_id):
     if request.method == 'GET':
         if category_id:
             try:
-                category = Category.objects.filter(menu__id=menu.id).get(id=category_id)
+                category = menu.categories.get(id=category_id)
             except Category.DoesNotExist:
                 return Response({'detail': 'category does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -231,15 +239,17 @@ def menu_category_view(request, restaurant_id, menu_id):
             return Response({'detail': 'invalid json data'}, status=status.HTTP_400_BAD_REQUEST)
 
         image = request.FILES.get('image', None)
-        print(json_data, image, '\n\n\n\n')
         serializer = CategorySerializer(data=json_data)
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        category = serializer.save()
-        category.image.save(image.name, image)
-        category.menus.add(menu)
+        category = Category(**serializer.validated_data)
+
+        category.menu = menu
+
+        if image:
+            category.image.save(image.name, image)
 
         category.save()
 
@@ -259,12 +269,12 @@ def menu_category_view(request, restaurant_id, menu_id):
 
 
 @api_view(["GET", "POST", "DELETE"])
-@permission_classes([IsAuthenticatedOrReadOnly])
+@permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
 def dish_view(request, restaurant_id, menu_id):
     try:
-        restaurant = Restaurant.objects.get(id=restaurant_id)
-        menu = Menu.objects.get(id=menu_id)
+        restaurant = request.user.restaurants.get(id=restaurant_id)
+        menu = restaurant.menus.get(id=menu_id)
     except Restaurant.DoesNotExist:
         return Response({'detail': 'restaurant does not exist'}, status=status.HTTP_404_NOT_FOUND)
     except Menu.DoesNotExist:
@@ -292,19 +302,34 @@ def dish_view(request, restaurant_id, menu_id):
         return Response(serialiser.data, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
-        serialiser = DishSerializer(data=request.data)
+        if request.user not in restaurant.users.all():
+            return Response({'detail': 'forbidden'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            json_data = json.loads(request.data.get('json', {}))
+        except json.JSONDecodeError:
+            return Response({'detail': 'invalid json data'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        print(request.data)
+
+        serialiser = DishSerializer(data=json_data)
 
         if not serialiser.is_valid():
             return Response(serialiser.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        categories_id = set(serialiser.validated_data["categories_id"])
-        dish = serialiser.save()
-        menu.dishes.add(dish)
+        image = request.FILES.get('image', None)
+        categories_id = set(serialiser.validated_data.pop('categories_id', []))
 
-        # print('\n', set(category[0] for category in menu.categories.values_list('id')))
-        categories_to_add = Category.objects.filter(id__in=list(set(
-            category[0] for category in menu.categories.values_list('id')) & categories_id))
-        print('\n\nCategories to add: ', categories_to_add, '\n')
+        dish = Dish(**serialiser.validated_data)
+        dish.menu = menu
+
+        if image:
+            dish.image.save(image.name, image)
+
+        categories_to_add = menu.categories.filter(id__in=list(set(category[0] for category in menu.categories.values_list('id')) & categories_id))
+        # print('\n\nCategories to add: ', categories_to_add, '\n')
+        dish.save()
+
         dish.categories.set(categories_to_add)
 
         dish.save()
@@ -312,11 +337,14 @@ def dish_view(request, restaurant_id, menu_id):
         return Response(serialiser.data, status=status.HTTP_201_CREATED)
 
     elif request.method == 'DELETE':
+        if request.user not in restaurant.users.all():
+            return Response({'detail': 'forbidden'}, status=status.HTTP_403_FORBIDDEN)
+        
         if not dish_id:
             return Response({'detail': 'dish_id is not provided'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            dish = Dish.objects.get(id=dish_id)
+            dish = menu.dishes.get(id=dish_id)
             dish.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -325,21 +353,21 @@ def dish_view(request, restaurant_id, menu_id):
 
 
 @api_view(["GET", "POST"])
-@permission_classes([IsAuthenticatedOrReadOnly])
+@permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
 def dish_image_view(request, restaurant_id, menu_id, dish_id):
     return Response()
 
 
 @api_view(["GET", "POST"])
-@permission_classes([IsAuthenticatedOrReadOnly])
+@permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
 def ingradient_view(request, restaurant_id):
     return Response()
 
 
 @api_view(["GET", "POST"])
-@permission_classes([IsAuthenticatedOrReadOnly])
+@permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
 def table_view(request, restaurant_id):
     return Response()

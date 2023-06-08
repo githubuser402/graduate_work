@@ -23,7 +23,10 @@ export default {
             fetch(`${REST_API}/r/${restaurantId}/m/`,
                 {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json', },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    },
                 }).then(response => {
                     if (response.ok) {
                         return response;
@@ -46,7 +49,10 @@ export default {
             fetch(`${REST_API}/r/${restaurantId}/m/?id=${menuId}`,
                 {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json', },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    },
                 }).then(response => {
                     if (response.ok) {
                         return response;
@@ -65,7 +71,7 @@ export default {
         },
         createMenu(store, { restaurantId, menu }) {
             const formData = new FormData();
-            formData.append('json', JSON.stringify({title: menu.title}));
+            formData.append('json', JSON.stringify({ title: menu.title }));
             formData.append('image', menu.image);
 
             fetch(`${REST_API}/r/${restaurantId}/m/`,
@@ -89,6 +95,28 @@ export default {
                 }).catch(error => {
                     console.log(error);
                     alert('error creating menu');
+                });
+        },
+        deleteMenu(store, { restaurantId, menuId }) {
+            fetch(`${REST_API}/r/${restaurantId}/m/?id=${menuId}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    },
+                }).then(response => {
+                    if (response.ok) {
+                        return response;
+                    }
+                    else {
+                        throw new Error(response.json());
+                    }
+                }).then(data => {
+                    store.state.menus = store.state.menus.filter(menu => menu.id !== menuId);
+                }).catch(error => {
+                    console.log(error);
+                    alert('error deleting menu');
                 });
         },
     },
