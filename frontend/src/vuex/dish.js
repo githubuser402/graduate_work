@@ -64,7 +64,7 @@ export default {
         },
         createDish(store, { restaurantId, menuId, dish }) {
             const formData = new FormData();
-            formData.append('json', JSON.stringify({ name: dish.name, description: dish.description, recipe: dish.recipe, price: dish.price, categories_id: [] }));
+            formData.append('json', JSON.stringify({ name: dish.name, description: dish.description, recipe: dish.recipe, price: dish.price, category_id: dish.category }));
             formData.append('image', dish.image);
             
             fetch(`${REST_API}/r/${restaurantId}/m/${menuId}/d/`,

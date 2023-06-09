@@ -261,7 +261,7 @@ def menu_category_view(request, restaurant_id, menu_id):
             return Response({'detail': 'no category_id provided'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            category = restaurant.menus.get(id=menu_id)
+            category = menu.categories.get(id=category_id)
             category.delete()
             return Response({'detail': 'category deleted'}, status=status.HTTP_204_NO_CONTENT)
         except Menu.DoesNotExist:
@@ -318,19 +318,22 @@ def dish_view(request, restaurant_id, menu_id):
             return Response(serialiser.errors, status=status.HTTP_400_BAD_REQUEST)
 
         image = request.FILES.get('image', None)
-        categories_id = set(serialiser.validated_data.pop('categories_id', []))
+        # categories_id = set(serialiser.validated_data.pop('categories_id', []))
+
+        try:
+            category = menu.categories.get(id=serialiser.validated_data.pop('category_id', None))
+        except Category.DoesNotExist:
+            return Response({'detail': 'category does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         dish = Dish(**serialiser.validated_data)
         dish.menu = menu
+        dish.category = category
 
         if image:
             dish.image.save(image.name, image)
 
-        categories_to_add = menu.categories.filter(id__in=list(set(category[0] for category in menu.categories.values_list('id')) & categories_id))
+        # categories_to_add = menu.categories.filter(id__in=list(set(category[0] for category in menu.categories.values_list('id')) & categories_id))
         # print('\n\nCategories to add: ', categories_to_add, '\n')
-        dish.save()
-
-        dish.categories.set(categories_to_add)
 
         dish.save()
         serialiser = DishSerializer(dish)

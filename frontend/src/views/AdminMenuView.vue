@@ -8,12 +8,21 @@
                     :to="{ name: 'admin-restaurant', params: { id: $route.params.restaurantId } }">Menus</router-link>
             </div>
             <div>
-                <button class="btn btn-outline-secondary m-1 rounded-0" style="width: 200px;">
-                    Generate QR-code</button>
-                <button type="button" class="btn btn-outline-secondary m-1 rounded-0" @click="deleteMenu" style="width:80px;">Delete</button>
+                <button class="btn btn-outline-secondary m-1 rounded-0" @click="generateQRCode"
+                    style="width: 200px;">Generate QR-code</button>
+                <button type="button" class="btn btn-outline-secondary m-1 rounded-0" @click="deleteMenu"
+                    style="width:80px;">Delete</button>
             </div>
         </div>
-        <!-- <img :src="$store.getters.getDomain + getMenu().image" alt="Background Image"> -->
+        <div v-if='showQRCode' class="qrcode-window">
+            <img :src="qrcode" alt="qr code" class="border border-1 p-2">
+            <div style="display: flex; justify-content: center;flex-direction: column;">
+                <button class="btn btn-primary-inverted border" @click="showQRCode=false" style="width:100px">Закрити</button>
+                <button class="btn btn-primary" @click="saveQRCode()"
+                    style="width: 100px; text-align: center;font-weight: 600;">Скачати</button>
+            </div>
+            <a ref="downloadLink" style="display: none;"></a>
+        </div>
         <div class="d-flex justify-content-center">
             <h1>{{ getMenu().title }}</h1>
         </div>
@@ -26,11 +35,14 @@
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import DishList from '@/components/DishList.vue';
 import CategoryList from '@/components/CategoryList.vue';
+import { normalizeStyle } from 'vue';
 
 export default {
     name: 'AdminMenuView',
     data() {
         return {
+            qrcode: null,
+            showQRCode: false,
         }
     },
     components: {
@@ -45,17 +57,31 @@ export default {
         }
     },
     mounted() {
-        // console.log('manu id: ', this.$route.params.menuId)
+
         this.fetchMenu({ restaurantId: this.$route.params.restaurantId, menuId: this.$route.params.menuId });
         // console.log('menu:', this.getMenu());
     },
     methods: {
-        ...mapActions('menu', ['fetchMenu', 'deleteMenu']),
-        ...mapGetters('menu', ['getMenu']),
-        deleteMenu(){
+        ...mapActions('menu', ['fetchMenu', 'deleteMenu', 'generateQRCode']),
+        ...mapGetters('menu', ['getMenu', 'getQRCode']),
+        deleteMenu() {
             this.$store.dispatch('menu/deleteMenu', { restaurantId: this.$route.params.restaurantId, menuId: this.$route.params.menuId });
             this.$router.push({ name: 'admin-restaurant', params: { id: this.$route.params.restaurantId } });
         },
+        generateQRCode() {
+            this.$store.dispatch('menu/generateQRCode', { restaurantId: this.$route.params.restaurantId, menuId: this.$route.params.menuId });
+            this.qrcode = this.getQRCode();
+            this.showQRCode = true;
+        },
+        saveQRCode() {
+            const link = this.$refs.downloadLink;
+            link.href = this.qrcode;
+            link.download = 'qrcode.png'; // Specify the desired filename here
+
+            // Programmatically click the link to trigger the download
+            link.click();
+            this.showQRCode = false;
+        }
     },
     computed: {
         setBackground() {
@@ -71,4 +97,15 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.qrcode-window * {
+    /* position: relative;  */
+    display: flex;
+    margin: auto;
+    z-index: 3;
+    top: 10%;
+    /* width: 100px; */
+    padding: 10px;
+    text-align: center;
+}
+</style>

@@ -11,6 +11,11 @@ export default {
         menu: {
             type: Object,
             default: {},
+
+        },
+        qrcode: {
+            type: Object,
+            default: {},
         },
     },
     mutations: {
@@ -119,14 +124,38 @@ export default {
                     alert('error deleting menu');
                 });
         },
+        generateQRCode(store, { restaurantId, menuId }) {
+            const fullDomain = window.location.protocol + '//' + window.location.host + '/r/' + restaurantId + '/m/' + menuId + '/';
+            // console.log(fullDomain);
+            fetch(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${fullDomain}`, 
+            {
+                method: 'GET',
+            }).then(response => {
+                if (response.ok) {
+                    return response;
+                }
+                else {
+                    throw new Error();
+                }
+            }).then(data => {
+                return data.blob();
+            }).then(blob => {
+                store.state.qrcode = URL.createObjectURL(blob);
+            }).catch(error => {
+                alert('error generating QRCode');
+            });
+            
+        },
     },
     getters: {
         getMenus(state) {
             return state.menus;
         },
         getMenu(state) {
-            console.log('called get menu here: ', state.menu.title);
             return state.menu;
         },
+        getQRCode(state) {
+            return state.qrcode;
+        }
     },
 };

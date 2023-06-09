@@ -100,12 +100,22 @@ class Menu(models.Model):
     title = models.CharField(max_length=60)
     image = models.ImageField(upload_to="menu_backgrounds", null=True)
     restaurant = models.ForeignKey(Restaurant, related_name='menus', on_delete=models.CASCADE)
-    # categories = models.ManyToManyField(Category, related_name='menus')
-    # dishes = models.ManyToManyField(Dish, related_name='menus')
     
     def __str__(self):
         return self.title
     
+
+class Category(models.Model):
+    title = models.CharField(max_length=60)
+    image = models.ImageField(upload_to="category_images")
+    created_at = models.DateTimeField(auto_now=True)
+    menu = models.ForeignKey(Menu, related_name="categories", on_delete=models.CASCADE)
+    
+    class Meta:
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return f"{self.title}"    
 
 
 class Dish(models.Model):
@@ -113,6 +123,7 @@ class Dish(models.Model):
     name = models.CharField(max_length=60)
     description = models.TextField()
     recipe = models.TextField()
+    category = models.ForeignKey(Category, related_name="dishes", on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     menu = models.ForeignKey(Menu, related_name="dishes", on_delete=models.CASCADE)
     
@@ -126,20 +137,6 @@ class DishImage(models.Model):
     
     def __str__(self):
         return f"dish image {self.id}"
-    
-
-class Category(models.Model):
-    title = models.CharField(max_length=60)
-    image = models.ImageField(upload_to="category_images")
-    dishes = models.ManyToManyField(Dish, related_name="categories")
-    created_at = models.DateTimeField(auto_now=True)
-    menu = models.ForeignKey(Menu, related_name="categories", on_delete=models.CASCADE)
-    
-    class Meta:
-        ordering = ('-created_at',)
-
-    def __str__(self):
-        return f"{self.title}"
     
 
 class Ingradient(models.Model):

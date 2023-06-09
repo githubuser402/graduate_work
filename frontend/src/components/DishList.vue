@@ -33,6 +33,12 @@
                     <label for="imageInput">Image</label>
                     <input class="form-control" @change="handleFileChange" type="file" accept="image/*" id="imageInput">
                 </div>
+                <div class="mb-3">
+                    <label for="categoryInput">Image</label>
+                    <select id="categoryInput" v-model="formData.category">
+                        <option v-for="category in getCategories()" :key="category.id" :value="category.id">{{ category.title }}</option>
+                    </select>
+                </div>
                 <div class="d-flex flex-row">
                     <button class="btn btn-primary m-2" style="background-color: white;  color: blue;" @click="showForm = false">Cancel</button>
                     <button type="submit" @click="submitForm" class="btn btn-primary m-2">Create</button>
@@ -73,6 +79,10 @@ export default {
                 recipe: '',
                 price: '',
                 image: null,
+                category: {
+                    type: Number,
+                    required: true,
+                },
             },
         }
     },
@@ -81,6 +91,7 @@ export default {
     methods: {
         ...mapActions('dish', ['fetchDishes', 'createDish']),
         ...mapGetters('dish', ['getDishes']),
+        ...mapGetters('category', ['getCategories']),
         submitForm() {
             this.createDish({
                 restaurantId: this.$route.params.restaurantId,

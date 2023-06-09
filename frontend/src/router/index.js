@@ -5,6 +5,7 @@ import AdminRestaurantView from '../views/AdminRestaurantView.vue';
 import AdminMenuView from '../views/AdminMenuView.vue';
 import AdminDishView from '../views/AdminDishView.vue';
 import AdminCategoryView from '../views/AdminCategoryView.vue';
+import MenuView from '../views/MenuView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,7 +39,12 @@ const router = createRouter({
       path: '/admin/r/:restaurantId/m/:menuId/c/:categoryId/',
       name: 'admin-category',
       component: AdminCategoryView,
-    }
+    },
+    {
+      path: '/r/:restaurantId/m/:menuId/',
+      name: 'public-menu',
+      component: MenuView,
+    },
   ]
 })
 

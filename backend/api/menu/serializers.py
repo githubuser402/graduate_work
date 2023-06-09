@@ -29,8 +29,8 @@ class DishSerializer(serializers.Serializer):
     description = serializers.CharField()
     recipe = serializers.CharField()
     price = serializers.DecimalField(max_digits=8, decimal_places=2)
-    categories_id = serializers.ListField(child=serializers.IntegerField(), write_only=True)
     images = DishImageSerializer(many=True, read_only=True)
+    category_id = serializers.IntegerField()
     image = serializers.ImageField(read_only=True)
 
     def __init__(self, *args, **kwargs):
@@ -45,25 +45,25 @@ class DishSerializer(serializers.Serializer):
                 self.fields.pop(field_name)
 
 
-    def create(self, validated_data):
-        categories_id = validated_data.pop('categories_id', [])
-        dish = Dish.objects.create(**validated_data)
+    # def create(self, validated_data):
+    #     categories_id = validated_data.pop('categories_id', [])
+    #     dish = Dish.objects.create(**validated_data)
 
-        # Add categories to the dish
-        # dish.categories.set(categories_id)
-        return dish
+    #     # Add categories to the dish
+    #     # dish.categories.set(categories_id)
+    #     return dish
 
-    def update(self, instance, validated_data):
-        categories_id = validated_data.pop('categories_id', [])
-        instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get('description', instance.description)
-        instance.recipe = validated_data.get('recipe', instance.recipe)
-        instance.price = validated_data.get('price', instance.price)
+    # def update(self, instance, validated_data):
+    #     categories_id = validated_data.pop('categories_id', [])
+    #     instance.name = validated_data.get('name', instance.name)
+    #     instance.description = validated_data.get('description', instance.description)
+    #     instance.recipe = validated_data.get('recipe', instance.recipe)
+    #     instance.price = validated_data.get('price', instance.price)
 
-        # Update categories of the dish
-        # instance.categories.set(categories_id)
-        instance.save()
-        return instance
+    #     # Update categories of the dish
+    #     # instance.categories.set(categories_id)
+    #     instance.save()
+    #     return instance
     
 
 class CategorySerializer(serializers.Serializer):
