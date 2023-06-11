@@ -174,7 +174,6 @@ const store = createStore({
     },
     getters: {
         loggedIn(state) {
-            console.log(state.user.loggedIn)
             return state.user.loggedIn;
         },
         getDomain(state) {

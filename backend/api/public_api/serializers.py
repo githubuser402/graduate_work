@@ -42,11 +42,22 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'image', 'created_at', 'dishes')
 
 
+class CategoryGeneralSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    title = serializers.CharField(max_length=60)
+    image = serializers.ImageField(read_only=True)
+    created_at = serializers.DateTimeField()
+
+    class Meta:
+        model = Category
+        fields = ('id', 'title', 'image', 'created_at')
+
+
 class MenuSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField(max_length=60)
     image = serializers.ImageField(read_only=True)
-    categories = CategorySerializer(many=True, read_only=True)
+    categories = CategoryGeneralSerializer(many=True, read_only=True)
     restaurant = RestaurantSerializer(read_only=True)
 
     class Meta:

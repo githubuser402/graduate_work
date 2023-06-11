@@ -1,31 +1,42 @@
 <template>
     <div>
         <nav>
-            <RouterLink :to="{name: 'home'}">Home</RouterLink>
-            <button @click="logOut">Log out</button>
+            <RouterLink :to="{ name: 'home' }">Домашня сторінка</RouterLink>
+            <TelegramIntegration v-if="showTelegramIntegration"/>
+            <div class="d-flex column">
+                <button @click="changeTelegramIntegrationView()">Інтеграція з Telegram</button>
+                <button @click="logOut">Вийти з акаунту</button>
+            </div>
         </nav>
         <div>
-           <RestaurantList/>
+            <RestaurantList />
         </div>
     </div>
 </template>
 
 <script>
 import { mapMutations } from 'vuex';
-import Menu from '@/components/Menu.vue';
 import RestaurantList from '@/components/RestaurantList.vue';
+import TelegramIntegration from '@/components/TelegramIntegration.vue';
 
 export default {
     name: 'Admin',
     data() {
         return {
+            showTelegramIntegration: false,
         }
     },
     components: {
-        RestaurantList,
-    },
+    RestaurantList,
+    TelegramIntegration,
+    TelegramIntegration
+},
     methods: {
         ...mapMutations(['logOut']),
+        changeTelegramIntegrationView(){
+            this.showTelegramIntegration = !this.showTelegramIntegration;
+            console.log('clicked')
+        }
     },
     computed: {
     },
@@ -56,9 +67,9 @@ nav button {
     cursor: pointer;
 }
 
-nav *{
+nav * {
     padding-left: 10px;
     padding-right: 10px;
-    max-width: 100px;
+    max-width: 400px;
 }
 </style>

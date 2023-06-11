@@ -2,15 +2,15 @@
     <div>
         <div class="d-flex column justify-content-between gap-4">
             <div class="border border-1 m-1">
-                <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
-                <router-link class="btn" :to="{ name: 'admin' }">Restaurants</router-link>
+                <router-link class="btn" :to="{ name: 'home' }">Домашня сторінка</router-link>
+                <router-link class="btn" :to="{ name: 'admin' }">Ресторани</router-link>
                 <router-link class="btn"
-                    :to="{ name: 'admin-restaurant', params: { id: $route.params.restaurantId } }">Menus</router-link>
+                    :to="{ name: 'admin-restaurant', params: { id: $route.params.restaurantId } }">Меню</router-link>
                 <router-link class="btn"
                     :to="{ name: 'admin-menu', params: { restaurantId: $route.params.restaurantId, menuId: $route.params.menuId } }">Categories</router-link>
             </div>
             <button type="button" class="btn btn-outline-secondary m-1 rounded-0" @click="deleteCategory()"
-                style="width:80px;">Delete</button>
+                style="width:100px;">Видалити</button>
         </div>
         <center>
             <h1>{{ getCategory().title }}</h1>
@@ -69,3 +69,14 @@ export default {
     },
 };
 </script>
+
+<style scoped>
+body {
+  height: 100%;
+  background: #ebf4f5;
+  background: linear-gradient(90deg, #ebf4f5 0%, #b5c6e0  100%);
+  background: -moz-linear-gradient(90deg, #ebf4f5 0%, #b5c6e0  100%);
+  background: -webkit-linear-gradient(90deg, #ebf4f5 0%, #b5c6e0 100%);
+  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="#F86CA7", endColorstr="#F4D444", GradientType=1);
+}
+</style>

@@ -1,46 +1,60 @@
 <template>
     <div>
-        <img :src="$store.getters.getDomain + getMenu().image" class="background-image" alt="Responsive image">
-        <div class="content">
+        <div class="row p-0 m-0">
+            <center style="position:fixed; left: 0px; top: 0px; z-index: -1;">
+                <img :src="$store.state.urls.API_DOMAIN + menu.image" style="width: 100%;" alt="Menu Image"
+                    class="img-fluid">
+            </center>
+        </div>
+        <div class="border border-3 jumbotron text-center m-3 p-2" style="background-color: rgba(183, 184, 209, 0.63);">
+            <h1>{{ restaurant.name }}</h1>
+            <p>{{ restaurant.address }}</p>
+            <p>{{ restaurant.description }}</p>
+            <p>Contact: {{ restaurant.email.work }}</p>
+        </div>
+        <div class="container border border-3" style="width: 100%;background-color: rgba(183, 184, 209, 0.63);">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>Menu Categories</h2>
+                </div>
+            </div>
+
+            <div class="row d-flex justify-content-center">
+                <div v-for="category in categories" :key="category.id" @click="goToCategory(category.id)"
+                    class="card mb-3 d-flex flex-column align-items-center justify-content-center p-4 m-5" style="max-width: 400px;;">
+                    <img :src="$store.state.urls.API_DOMAIN + category.image" class="card-img-top"
+                        style="width: 300px; height: 300px;" alt="Category Image">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ category.title }}</h5>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </template>
-
+  
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapMutations } from 'vuex';
 
 export default {
     name: 'MenuView',
-    data() {
-        return {
-
-        }
+    computed: {
+        ...mapGetters('publicMenu', ['menu', 'categories', 'restaurant']),
     },
     methods: {
         ...mapActions('publicMenu', ['fetchMenu']),
-        ...mapGetters('publicMenu', ['getMenu']),
-    },
-    mounted() {
-        this.fetchMenu({ restaurantId: this.$route.params.restaurantId, menuId: this.$route.params.menuId })
-        console.log(this.$route.params.restaurantId, this.$route.params.menuId)
-        // this.$store.dispatch('publicMenu/fetchMenu', { restaurantId: this.$route.params.restaurantId, menuId: this.$route.params.menuId })
-    },
-}
-</script>
+        ...mapMutations('publicMenu', ['setCategory']),
 
-<style scoped>
-.background-image {
-    top: 0;
-    left: 0;
-    width: 400px;
-    z-index: 1;
-    border-radius: 12px;
-}
-.content {
-  z-index: 2;
-  width: 100%;
-  height: 90%;
-  background-color: aliceblue;
-  background-color: white;
-}
-</style>
+        goToCategory(categoryId) {
+            this.$router.push({ name: 'public-category', params: { restaurantId: this.$route.params.restaurantId, menuId: this.$route.params.menuId, categoryId: categoryId } });
+            this.setCategory(categoryId);
+        },  
+    },
+    beforeMount() {
+        this.fetchMenu({ restaurantId: this.$route.params.restaurantId, menuId: this.$route.params.menuId });
+    },
+};
+</script>
+  
+<style scoped>/* Add custom CSS or Bootstrap classes here */</style>

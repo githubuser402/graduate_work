@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-from django.core.management.utils import get_random_secret_key
 from datetime import timedelta
 import configparser
 import os
@@ -26,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 config = configparser.ConfigParser()
 config.read(os.path.join(os.path.expanduser("~"), '.config.ini'))
 SECRET_KEY = config['django']['secret_key']
-
+TELEGRAM_BOT_TOKEN = config['telegram']['token']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -153,6 +152,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

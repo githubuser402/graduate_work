@@ -1,38 +1,38 @@
 <template>
   <div id="login-form">
     
-    <h2>{{ isRegister ? 'Register' : 'Login' }}</h2>
+    <h2>{{ isRegister ? 'Реєстрація' : 'Вхід' }}</h2>
     <form v-if="!isRegister" @submit.prevent="login">
-      <label for="email">Email:</label>
+      <label for="email">Емейл:</label>
       <input type="email" id="email" v-model="email" required>
 
-      <label for="password">Password:</label>
+      <label for="password">Пароль:</label>
       <input type="password" id="password" v-model="password" required>
 
-      <button type="submit">Login</button>
+      <button type="submit">Увійти</button>
     </form>
 
     <form v-if="isRegister" @submit.prevent="register">
-      <label for="firstName">First Name:</label>
+      <label for="firstName">Ім'я:</label>
       <input type="text" id="firstName" v-model="firstName" required>
 
-      <label for="lastName">Last Name:</label>
+      <label for="lastName">Прізвище:</label>
       <input type="text" id="lastName" v-model="lastName" required>
 
-      <label for="email">Email:</label>
+      <label for="email">Емейл:</label>
       <input type="email" id="email" v-model="emailRegister" required>
 
-      <label for="password">Password:</label>
+      <label for="password">Пароль:</label>
       <input type="password" id="password" v-model="passwordRegister" required>
 
-      <button type="submit">Register</button>
+      <button type="submit">Зареєструватись</button>
     </form>
 
     <p v-if="isRegister">
-      Already have an account? <a href="#" @click="toggleForm">Login</a>
+      Вже є акаунт? <a href="#" @click="toggleForm">Увійти</a>
     </p>
     <p v-else>
-      Don't have an account? <a href="#" @click="toggleForm">Register</a>
+      Ще немає акаунту? <a href="#" @click="toggleForm">Зареєструватись</a>
     </p>
   </div>
 </template>

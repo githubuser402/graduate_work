@@ -1,24 +1,24 @@
 <template>
     <div>
         <div class="control-panel">
-            <h1>Menus</h1>
-            <button v-if="$store.getters.loggedIn" type="button" @click="showForm=true" class="btn btn-sm btn-primary"><h5>Create menu</h5></button>
+            <h1>Меню</h1>
+            <button v-if="$store.getters.loggedIn" type="button" @click="showForm=true" class="btn btn-sm btn-primary"><h5>Створити меню</h5></button>
         </div>
 
         <div v-if="showForm === true" class="floating-window rounded rounded-3 p-5 m-3">
             <form v-on:submit.prevent="">
                 <div class="mb-3">
-                    <label for="titleInput" class="form-label">Menu title</label>
+                    <label for="titleInput" class="form-label">Назва меню</label>
                     <input type="text" v-model="formData.title" class="form-control" id="titleInput"
                         aria-describedby="titleHelp">
                 </div>
                 <div class="mb-3">
-                    <label for="imageInput">Image</label>
+                    <label for="imageInput">Фото</label>
                     <input class="form-control" @change="handleFileChange" type="file" accept="image/*" id="imageInput">
                 </div>
                 <div class="d-flex flex-row">
-                    <button class="btn btn-primary m-2" style="background-color: white;  color: blue;" @click="showForm = false">Cancel</button>
-                    <button type="submit" @click="submitForm" class="btn btn-primary m-2">Create</button>
+                    <button class="btn btn-primary m-2" style="background-color: white;  color: blue;" @click="showForm = false">Відміна</button>
+                    <button type="submit" @click="submitForm" class="btn btn-primary m-2">Створити</button>
                 </div>
             </form>
         </div>

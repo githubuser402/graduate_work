@@ -1,40 +1,40 @@
 <template>
     <div>
         <div class="control-panel">
-            <h1>Dishes</h1>
-            <button v-if="$store.getters.loggedIn" class="btn btn-primary" @click="showForm=true">Add Dish</button>
+            <h1>Страви</h1>
+            <button v-if="$store.getters.loggedIn" class="btn btn-primary" @click="showForm=true">Додати страву</button>
         </div>
 
         <div v-if="showForm === true" style="transform: translate('-50%', '-50%'); top: 50%; background-color: antiquewhite;" class="floating-window rounded rounded-3 p-5 m-3">
             <form v-on:submit.prevent="">
                 <div class="mb-3">
-                    <label for="nameInput" class="form-label">Dish name</label>
+                    <label for="nameInput" class="form-label">Назва страви</label>
                     <input type="text" v-model="formData.name" class="form-control" id="nameInput"
                         aria-describedby="titleHelp">
                 </div>
                 <div class="mb-3">
-                    <label for="descriptionTextarea">Description</label>
+                    <label for="descriptionTextarea">Опис</label>
                     <textarea class="form-control" style="resize: vertical" v-model="formData.description" id="descriptionTextarea"
                         rows="3"></textarea>
                 </div>
                 <div class="mb-3">
-                    <label for="recipeTextarea">Recipe</label>
+                    <label for="recipeTextarea">Рецепт</label>
                     <textarea class="form-control" v-model="formData.recipe" id="recipeTextarea"
                         rows="3"></textarea>
                 </div>
                 <div class="mb-3">
                 </div>
                 <div class="mb-3">
-                    <label for="priceInput" class="form-label">Price</label>
+                    <label for="priceInput" class="form-label">Ціна</label>
                     <input type="number" v-model="formData.price" class="form-control" id="priceInput"
                         aria-describedby="titleHelp">
                 </div>
                 <div class="mb-3">
-                    <label for="imageInput">Image</label>
+                    <label for="imageInput">Фото</label>
                     <input class="form-control" @change="handleFileChange" type="file" accept="image/*" id="imageInput">
                 </div>
                 <div class="mb-3">
-                    <label for="categoryInput">Image</label>
+                    <label for="categoryInput">Категорія</label>
                     <select id="categoryInput" v-model="formData.category">
                         <option v-for="category in getCategories()" :key="category.id" :value="category.id">{{ category.title }}</option>
                     </select>

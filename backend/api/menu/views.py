@@ -7,6 +7,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import BasePermission
 from django.db import IntegrityError
 import json
+from .management.commands.bot import send_message
 
 
 from .models import (
@@ -76,13 +77,12 @@ def restaurant_view(request):
     if request.method == 'GET':
         if restaurant_id:
             try:
-                print(request.user)
                 restaurant = request.user.restaurants.get(id=restaurant_id)
                 serializer = RestaurantSerializer(restaurant)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except Restaurant.DoesNotExist:
                 return Response({'detail': 'Restaurant not found'}, status=status.HTTP_404_NOT_FOUND)
-
+        
         restaurants = request.user.restaurants.all()
         serializer = RestaurantSerializer(restaurants, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -93,10 +93,10 @@ def restaurant_view(request):
             return Response({'detail': 'Not valid data', 'errors': serializer.error_messages}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
         try:
-            # serializer.users.add(request.user)
             restaurant = serializer.save()
             restaurant.users.add(request.user)
             restaurant.save()
+            send_message(request.user, restaurant.__class__.__name__, restaurant, 'created')
             return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response({'detail': 'Restaurant exists'}, status=status.HTTP_409_CONFLICT)
@@ -108,6 +108,7 @@ def restaurant_view(request):
             restaurant = request.user.restaurants.get(id=restaurant_id)
             if request.user in restaurant.users.all():
                 restaurant.delete()
+                send_message(request.user, restaurant.__class__.__name__, restaurant, 'deleted')
                 return Response({'detail': 'restaurant deleted'}, status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response({'detail': 'forbidden'}, status=status.HTTP_403_FORBIDDEN)
@@ -164,8 +165,6 @@ def menu_view(request, restaurant_id):
         except json.JSONDecodeError:
             return Response({'detail': 'invalid json data'}, status=status.HTTP_400_BAD_REQUEST)
 
-        print(json_data)
-
         image = request.FILES.get('image', None)
         serializer = MenuSerializer(data=json_data)
 
@@ -181,6 +180,8 @@ def menu_view(request, restaurant_id):
 
         menu.save()
 
+        send_message(request.user, menu.__class__.__name__, menu, 'created')
+
         serializer = MenuSerializer(menu)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -194,6 +195,8 @@ def menu_view(request, restaurant_id):
         try:
             menu = restaurant.menus.get(id=menu_id)
             menu.delete()
+            send_message(request.user, menu.__class__.__name__, restaurant, 'deleted')
+
             return Response({'detail': 'menu deleted'}, status=status.HTTP_204_NO_CONTENT)
         except Menu.DoesNotExist:
             return Response({'detail': 'menu does not exist'}, status=status.HTTP_404_NOT_FOUND)
@@ -252,6 +255,7 @@ def menu_category_view(request, restaurant_id, menu_id):
             category.image.save(image.name, image)
 
         category.save()
+        send_message(request.user, category.__class__.__name__, category, 'created')
 
         serializer = CategorySerializer(category)
         return Response(serializer.data)
@@ -263,6 +267,8 @@ def menu_category_view(request, restaurant_id, menu_id):
         try:
             category = menu.categories.get(id=category_id)
             category.delete()
+            send_message(request.user, category.__class__.__name__, category, 'deleted')
+            
             return Response({'detail': 'category deleted'}, status=status.HTTP_204_NO_CONTENT)
         except Menu.DoesNotExist:
             return Response({'detail': 'category does not exist'}, status=status.HTTP_404_NOT_FOUND)
@@ -309,8 +315,6 @@ def dish_view(request, restaurant_id, menu_id):
             json_data = json.loads(request.data.get('json', {}))
         except json.JSONDecodeError:
             return Response({'detail': 'invalid json data'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        print(request.data)
 
         serialiser = DishSerializer(data=json_data)
 
@@ -336,6 +340,8 @@ def dish_view(request, restaurant_id, menu_id):
         # print('\n\nCategories to add: ', categories_to_add, '\n')
 
         dish.save()
+        send_message(request.user, dish.__class__.__name__, dish, 'created')
+
         serialiser = DishSerializer(dish)
         return Response(serialiser.data, status=status.HTTP_201_CREATED)
 
@@ -349,6 +355,8 @@ def dish_view(request, restaurant_id, menu_id):
         try:
             dish = menu.dishes.get(id=dish_id)
             dish.delete()
+            send_message(request.user, dish.__class__.__name__, dish, 'deleted')
+
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         except Dish.DoesNotExist:

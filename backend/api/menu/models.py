@@ -53,6 +53,7 @@ class User(AbstractBaseUser):
     last_name = models.CharField(max_length=30)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    telegram_id = models.CharField(max_length=30, null=True)
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'

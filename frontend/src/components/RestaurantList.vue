@@ -2,36 +2,36 @@
     <div>
         <div>
             <div class="control-panel">
-                    <h1>Restaurants</h1>
-                <button type="button" v-if="$store.getters.loggedIn" @click="showForm=true" class="btn btn-sm btn-primary"><h5>Create restaurant</h5></button>
+                    <h1>Ресторани</h1>
+                <button type="button" v-if="$store.getters.loggedIn" @click="showForm=true" class="btn btn-sm btn-primary"><h5>Створити ресторан</h5></button>
             </div>
 
             <div>
                 <div v-if="showForm===true" class="floating-window rounded rounded-3 p-5 m-3">
                     <form v-on:submit.prevent="">
                         <div class="mb-3">
-                            <label for="nameInput" class="form-label">Restaurant name</label>
+                            <label for="nameInput" class="form-label">Ім'я</label>
                             <input type="text" v-model="formData.name" class="form-control" id="nameInput">
                         </div>
                         <div class="mb-3">
-                            <label for="addressInput">Address</label>
+                            <label for="addressInput">Адреса</label>
                             <input v-model="formData.address" id="addressInput" class="form-control">
                         </div>
                         <div class="mb-3">
-                            <label for="descriprionInput">Descripiton</label>
+                            <label for="descriprionInput">Опис</label>
                             <input v-model="formData.description" id="descriprionInput" class="form-control">
                         </div>
                         <div class="mb-3">
-                            <label for="email">Email</label>
+                            <label for="email">Емейл</label>
                             <input type="email" v-model="formData.email.work" id="email" class="form-control">
                         </div>
                         <div class="mb-3">
-                            <label for="phone">Phone</label>
+                            <label for="phone">Номер телефону</label>
                             <input type="text" v-model="formData.contactNumber.work" id="email" class="form-control">
                         </div>
                         <div class="d-flex flex-row">
-                            <button class="btn btn-primary m-2" style="background-color: white;  color: blue;" @click="showForm = false">Cancel</button>
-                            <button type="submit" @click="submitForm" class="btn btn-primary m-2">Create</button>
+                            <button class="btn btn-primary m-2" style="background-color: white;  color: blue;" @click="showForm = false">Відміна</button>
+                            <button type="submit" @click="submitForm" class="btn btn-primary m-2">Створити</button>
                         </div>
                     </form>
                 </div>
@@ -44,7 +44,7 @@
                         <router-link :to="{ name: 'admin-restaurant', params: { id: encodeURIComponent(restaurant.id) } }">
                             <h5 class="card-title">{{ restaurant.name }}</h5>
                         </router-link>
-                        <p class="card-text">{{ restaurant.description }}</p>
+                        <!-- <p class="card-text">{{ restaurant.description }}</p> -->
                         <p class="card-text"><strong>{{ restaurant.address }}</strong></p>
                     </div>
                 </div>

@@ -1,4 +1,13 @@
 /* @import "./base.css"; */
+body {
+  background-repeat: no-repeat;
+  /* background-size: cover; */
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #ebf4f5 0%, #b5c6e0  100%);
+  background: -moz-linear-gradient(90deg, #ebf4f5 0%, #b5c6e0  100%);
+  /* filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="#F86CA7", endColorstr="#F4D444", GradientType=1); */
+}
 
 .control-panel {
   background-color: #f8f9fa;
