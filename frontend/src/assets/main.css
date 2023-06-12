@@ -34,3 +34,23 @@ body {
   border: 1px solid #ccc;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+
+.menu-nav{
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  z-index: 2;
+  background-color: rgba(232, 204, 255, 0.111);
+  height: 60px;
+  padding-left: 50px;
+  padding-right: 50px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.order-btn{
+  max-width: 300px;
+  background-color: #43eaaa;
+}

@@ -1,5 +1,11 @@
 <template>
     <div class="category">
+        <nav class="navbar menu-nav">
+            <router-link role="button" :to="{name: 'public-menu', params: {restaurantId: $route.params.restaurantId, menuId: $route.params.menuId }}" class="btn btn-primary" style="background-color: #ccc;">Назад</router-link>
+            <button class="order-btn" @click="$store.state.order.showOrder=!$store.state.order.showOrder">Рахунок</button>
+        </nav>
+        
+        <Order v-if="$store.state.order.showOrder"/>
         <h2 class="card-container">{{ category.title }}</h2>
         <img :src="$store.state.urls.API_DOMAIN + category.image" alt="Category Image" class="category-image">
         <div class="d-flex flex-wrap justify-content-center card-container">
@@ -11,9 +17,9 @@
                     <p class="dish-price">{{ dish.price }} грн</p>
                     <!-- <button class="btn btn-primary">Order Now</button> -->
                     <div class="d-flex column">
-                        <button class="card-btn"><h3>-</h3></button>
-                        <span class="p-2"><h3>0</h3></span>
-                        <button class="card-btn"><h3>+</h3></button>
+                        <button @click="removeDish(dish)" class="card-btn"><h3>-</h3></button>
+                        <span class="p-2"><h3>{{ quantity(dish.id) }}</h3></span>
+                        <button @click="addDish(dish)" class="card-btn"><h3>+</h3></button>
                     </div>
                 </div>
             </div>
@@ -22,15 +28,25 @@
 </template>
   
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
+import Order from '@/components/Order.vue';
 
 export default {
     name: "CategoryView",
+    data() {
+        return {
+        }
+    },
+    components: {
+        Order,
+    },
     computed: {
         ...mapGetters("publicMenu", ["category"]),
+        ...mapGetters("order", ["quantity"]),
     },
     methods: {
         ...mapActions("publicMenu", ["fetchCategory"]),
+        ...mapMutations("order", ["addDish", "removeDish"]),
     },
     mounted() {
         this.fetchCategory({

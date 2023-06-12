@@ -1,5 +1,10 @@
 <template>
     <div>
+        <nav class="navbar menu-nav" style="justify-content: flex-end;">
+            <button class="order-btn" @click="$store.state.order.showOrder=!$store.state.order.showOrder">Рахунок</button>
+        </nav>
+        
+        <Order v-if="$store.state.order.showOrder"/>
         <div class="row p-0 m-0">
             <center style="position:fixed; left: 0px; top: 0px; z-index: -1;">
                 <img :src="$store.state.urls.API_DOMAIN + menu.image" style="width: 100%;" alt="Menu Image"
@@ -35,16 +40,26 @@
 </template>
   
 <script>
-import { mapGetters, mapActions, mapMutations } from 'vuex';
+import { mapGetters, mapActions, mapMutations, mapState } from 'vuex';
+import Order from '@/components/Order.vue';
 
 export default {
     name: 'MenuView',
+    data() {
+        return {
+        }
+    },
+    components: {
+        Order,
+    },
     computed: {
         ...mapGetters('publicMenu', ['menu', 'categories', 'restaurant']),
+        ...mapState('order', ['showOrder']),
     },
     methods: {
         ...mapActions('publicMenu', ['fetchMenu']),
         ...mapMutations('publicMenu', ['setCategory']),
+        // ...mapMutations('order', ['changeOrderView']),
 
         goToCategory(categoryId) {
             this.$router.push({ name: 'public-category', params: { restaurantId: this.$route.params.restaurantId, menuId: this.$route.params.menuId, categoryId: categoryId } });
@@ -57,4 +72,6 @@ export default {
 };
 </script>
   
-<style scoped>/* Add custom CSS or Bootstrap classes here */</style>
+<style>
+
+</style>

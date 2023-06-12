@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes, authentication_classes, parser_classes
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -63,8 +63,9 @@ def user_view(request):
             return Response({'detail': 'User exists'})
 
 
-@api_view(["GET", "POST", 'DELETE'])
+@api_view(["GET", "POST", 'PATCH', 'DELETE'])
 @authentication_classes([JWTAuthentication])
+@parser_classes([MultiPartParser, JSONParser])
 @permission_classes([IsAuthenticated])
 def restaurant_view(request):
     try:
@@ -101,6 +102,27 @@ def restaurant_view(request):
         except IntegrityError:
             return Response({'detail': 'Restaurant exists'}, status=status.HTTP_409_CONFLICT)
 
+    elif request.method == 'PATCH':
+        if not restaurant_id:
+            return Response({'detail': 'No restaurant_id provided'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            restaurant = request.user.restaurants.get(id=restaurant_id)
+        except Restaurant.DoesNotExist:
+            return Response({'detail': 'Restaurant does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = RestaurantSerializer(restaurant, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response({'detail': 'Not valid data', 'errors': serializer.error_messages}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+        try:
+            restaurant = serializer.save()
+            send_message(request.user, restaurant.__class__.__name__, restaurant, 'updated')
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+        except IntegrityError:
+            return Response({'detail': 'Restaurant exists'}, status=status.HTTP_409_CONFLICT)
+        
+
     elif request.method == 'DELETE':
         if not restaurant_id:
             return Response({'detail': 'No restaurant_id provided'}, status=status.HTTP_400_BAD_REQUEST)
@@ -127,7 +149,7 @@ def restaurant_gallery_view(request):
 @api_view(["GET", "POST", 'DELETE'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
-@parser_classes([MultiPartParser, FormParser])
+@parser_classes([MultiPartParser])
 def menu_view(request, restaurant_id):
     try:
         menu_id = request.GET.get('id', None)

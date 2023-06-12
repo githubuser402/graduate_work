@@ -63,3 +63,17 @@ class MenuSerializer(serializers.ModelSerializer):
     class Meta:
         model = Menu
         fields = ('id', 'title', 'image', 'categories', 'restaurant')
+
+
+class OrderDishSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100)
+    quantity = serializers.IntegerField()
+
+
+class OrderSerializer(serializers.Serializer):
+    time = serializers.DateTimeField()
+    dishes = OrderDishSerializer(many=True)
+    table_number = serializers.IntegerField()
+    restaurant_id = serializers.IntegerField()
+    menu_id = serializers.IntegerField()
+    price = serializers.DecimalField(max_digits=8, decimal_places=2)

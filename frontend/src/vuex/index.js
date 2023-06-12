@@ -4,6 +4,7 @@ import menu from './menu';
 import category from './category';
 import dish from './dish';
 import publicMenu from './publicMenu';
+import order from './order';
 
 const REST_API = 'http://127.0.0.1:8000/menu/v1';
 
@@ -14,6 +15,7 @@ const store = createStore({
         category,
         dish,
         publicMenu,
+        order,
     },
     state: {
         urls: {
