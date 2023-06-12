@@ -37,8 +37,8 @@
                 </div>
             </div>
 
-            <div v-show="getRestaurants().length !== 0" class="border border-2 border-success rounded-4 m-3">
-                <div v-for="restaurant in getRestaurants()" :key="restaurant.id" class="card border p-1 m-3"
+            <div v-show="getRestaurants().length !== 0" class="border border-2 border-success rounded-4 m-3 d-flex column">
+                <div v-for="restaurant in getRestaurants()" :key="restaurant.id" class="card border p-1 m-3 "
                     style="width: 18rem;">
                     <div class="card-body">
                         <router-link :to="{ name: 'admin-restaurant', params: { id: encodeURIComponent(restaurant.id) } }">

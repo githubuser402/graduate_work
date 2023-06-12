@@ -3,7 +3,7 @@
 
 <template>
   <main>
-    <RouterLink :to="{name: 'admin'}">Admin page</RouterLink>
+    <!-- <RouterLink :to="{name: 'admin'}">Admin page</RouterLink> -->
   </main>
 </template>
 

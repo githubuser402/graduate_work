@@ -16,7 +16,9 @@
         </div>
         <div v-if='showQRCode' class="qrcode-window">
             <img :src="qrcode" alt="qr code" class="border border-1 p-2">
+            
             <div style="display: flex; justify-content: center;flex-direction: column;">
+                <input v-model="getUrl" style="max-width: 400px;" readonly> 
                 <button class="btn btn-primary-inverted border" @click="showQRCode=false" style="width:100px">Закрити</button>
                 <button class="btn btn-primary" @click="saveQRCode()"
                     style="width: 100px; text-align: center;font-weight: 600;">Скачати</button>
@@ -64,6 +66,7 @@ export default {
     methods: {
         ...mapActions('menu', ['fetchMenu', 'deleteMenu', 'generateQRCode']),
         ...mapGetters('menu', ['getMenu', 'getQRCode']),
+        ...mapMutations('menu', ['menuPageUrl']),
         deleteMenu() {
             this.$store.dispatch('menu/deleteMenu', { restaurantId: this.$route.params.restaurantId, menuId: this.$route.params.menuId });
             this.$router.push({ name: 'admin-restaurant', params: { id: this.$route.params.restaurantId } });
@@ -81,7 +84,7 @@ export default {
             // Programmatically click the link to trigger the download
             link.click();
             this.showQRCode = false;
-        }
+        },
     },
     computed: {
         setBackground() {
@@ -93,6 +96,9 @@ export default {
                 'height': '100vh',
             }
         },
+        getUrl(){
+            return  window.location.protocol + '//' + window.location.host + '/r/' + this.$route.params.restaurantId + '/m/' + this.$route.params.menuId + '/';
+        }
     },
 };
 </script>

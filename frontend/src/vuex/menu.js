@@ -19,9 +19,9 @@ export default {
         },
     },
     mutations: {
-        // setMenuFromList(state, payload) {
-
-        // },
+        menuPageUrl(store, { restaurantId, menuId }) {
+            return window.location.protocol + '//' + window.location.host + '/r/' + restaurantId + '/m/' + menuId + '/';
+        },
     },
     actions: {
         fetchMenus(store, restaurantId) {
